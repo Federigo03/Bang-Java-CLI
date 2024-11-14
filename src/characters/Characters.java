@@ -2,12 +2,12 @@ package characters;
 
 public class Characters {
     private String name;
-    private short startingLifes;
+    private int startingLives;
     private String ability;
 
-    public Characters(String name, short startingLifes, String ablity) {
+    public Characters(String name, int startingLives, String ablity) {
         setName(name);
-        setStartingLifes(startingLifes);
+        setStartingLives(startingLives);
         setAbility(ablity);
     }
 
@@ -19,12 +19,12 @@ public class Characters {
         this.name = name;
     }
 
-    public short getStartingLifes() {
-        return this.startingLifes;
+    public int getStartingLives() {
+        return this.startingLives;
     }
 
-    public void setStartingLifes(short startingLifes) {
-        this.startingLifes = startingLifes;
+    public void setStartingLives(int startingLives) {
+        this.startingLives = startingLives;
     }
 
     public String getAbility() {

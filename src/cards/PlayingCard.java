@@ -5,9 +5,9 @@ import java.util.LinkedList;
 public class PlayingCard {
     private String name;
     private char suit;
-    private short rank;
+    private int rank;
 
-    public PlayingCard(String name, char suit, short rank) {
+    public PlayingCard(String name, char suit, int rank) {
         setName(name);
         setSuit(suit);
         setRank(rank);
@@ -29,11 +29,11 @@ public class PlayingCard {
         this.suit = suit;
     }
 
-    public short getRank() {
+    public int getRank() {
         return this.rank;
     }
 
-    public void setRank(short rank) {
+    public void setRank(int rank) {
         this.rank = rank;
     }
 

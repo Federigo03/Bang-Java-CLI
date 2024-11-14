@@ -1,10 +1,10 @@
 package cards;
 
 public class Weapon extends PlayingCard {
-    private short range;
+    private int range;
     private boolean unlimitedBang;
 
-    public Weapon(String name, char suit, short rank, short range, boolean unlimitedBang) {
+    public Weapon(String name, char suit, int rank, int range, boolean unlimitedBang) {
         super(name, suit, rank);
         setRange(range);
         setUnlimitedBang(unlimitedBang);
@@ -13,40 +13,36 @@ public class Weapon extends PlayingCard {
     public Weapon(PlayingCard card){
         super(card.getName(), card.getSuit(), card.getRank());
         if(this.getName() == "Volcanic"){
-            setRange((short)1);
+            setRange(1);
             setUnlimitedBang(true);
         }
         else{
-            setUnlimitedBang(true);
+            setUnlimitedBang(false);
             switch (card.getName()) {
                 case "Schofield":
-                    setRange((short) 2);
+                    setRange(2);
                     break;
                 case "Remington":
-                    setRange((short) 3);
+                    setRange(3);
                     break;
                 case "Rev. Carabine":
-                    setRange((short) 4);
+                    setRange(4);
                     break;
                 case "Winchester":
-                    setRange((short) 5);
+                    setRange(5);
             }
         }
     }
     
-    public short getRange() {
+    public int getRange() {
         return this.range;
     }
 
-    public void setRange(short range) {
+    public void setRange(int range) {
         this.range = range;
     }
 
     public boolean isUnlimitedBang() {
-        return this.unlimitedBang;
-    }
-
-    public boolean getUnlimitedBang() {
         return this.unlimitedBang;
     }
 
@@ -56,6 +52,6 @@ public class Weapon extends PlayingCard {
 
     @Override
     public String toString(){
-        return "Distance: " + range + ")" + super.toString();
+        return super.toString() + " Range:(" + range + ")";
     }
 }
