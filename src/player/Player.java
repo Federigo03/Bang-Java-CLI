@@ -151,8 +151,10 @@ public class Player {
     }
     
     public void addLife(){
-        if(lives < startingLives)
+        if(lives < startingLives){
             lives++;
+            System.out.println(character.getName() + " gained a life");
+        }
     }
 
     private void startingDraw(LinkedList<PlayingCard> deck){
@@ -164,7 +166,7 @@ public class Player {
     
     public void draw(LinkedList<PlayingCard> deck, LinkedList<PlayingCard> discardPile){
         if(deck.isEmpty())
-            deck = Match.noDeck(discardPile);
+            deck = Match.discardIntoDeck(discardPile);
         System.out.println(character.getName() + ": (Drawn: " + deck.getFirst());
         hand.add(deck.removeFirst());
     }
@@ -196,7 +198,7 @@ public class Player {
         return b;
     }
 
-    private void suzyLafayette(LinkedList<PlayingCard> deck, LinkedList<PlayingCard> discardPile){
+    public void suzyLafayette(LinkedList<PlayingCard> deck, LinkedList<PlayingCard> discardPile){
         if(character.getName() == "Suzy Lafayette" && hand.isEmpty())
             draw(deck, discardPile);
     }
