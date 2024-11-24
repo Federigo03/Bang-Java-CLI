@@ -15,17 +15,17 @@ public class Player {
     private int range;
     private boolean unlimitedBang;
     private int startingLives;
-    private LinkedList<PlayingCard> hand = new LinkedList<PlayingCard>();  
-    private LinkedList<PlayingCard> activeCards = new LinkedList<PlayingCard>();
+    private LinkedList<PlayingCard> Hand = new LinkedList<PlayingCard>();  
+    private LinkedList<PlayingCard> ActiveCards = new LinkedList<PlayingCard>();
     private Weapon weapon;
 
-    public Player(String role, Characters character, String name, LinkedList<PlayingCard> deck) {
+    public Player(String role, Characters character, String name, LinkedList<PlayingCard> Deck) {
         setName(name);
         setRole(role);
         setCharacter(character);
         setLives(startingLives);
         setWeapon(null);
-        startingDraw(deck);
+        startingDraw(Deck);
     }
 
     public String getName(){
@@ -114,18 +114,18 @@ public class Player {
     }
 
     public LinkedList<PlayingCard> getActiveCards(){
-        return this.activeCards;
+        return this.ActiveCards;
     }
 
     public PlayingCard getActiveCard(String name){
-        for (PlayingCard card : activeCards)
+        for (PlayingCard card : ActiveCards)
             if(card.getName() == name)
                 return card;
         return null;
     }
 
     public boolean isActiveCard(String name){
-        for (PlayingCard card : activeCards)
+        for (PlayingCard card : ActiveCards)
             if(card.getName() == name)
                 return true;
         return false;
@@ -133,7 +133,7 @@ public class Player {
 
     public PlayingCard removeActiveCard(String name){
         PlayingCard card = getActiveCard(name);
-        activeCards.remove(card);
+        ActiveCards.remove(card);
         return card;
     }
 
@@ -141,75 +141,128 @@ public class Player {
         String s = new String();
         if(isWeapon())
             s += weapon + "\n";
-        for (PlayingCard card : activeCards)
+        for (PlayingCard card : ActiveCards)
             s += card + "\n";
         return s;
     }
 
     public LinkedList<PlayingCard> getHand() {
-        return this.hand;
+        return this.Hand;
     }
     
     public void addLife(){
         if(lives < startingLives){
             lives++;
-            System.out.println(character.getName() + " gained a life");
+            System.out.println(this + " gained a life");
         }
     }
 
-    private void startingDraw(LinkedList<PlayingCard> deck){
+    private void startingDraw(LinkedList<PlayingCard> Deck){
         for(int i = 0; i < lives; i++){
-            System.out.println(character.getName() + ": (Drawn: " + deck.getFirst());
-            hand.add(deck.removeFirst());
+            System.out.println(character.getName() + ": (Drawn: " + Deck.getFirst());
+            Hand.add(Deck.removeFirst());
         }
     }
     
-    public void draw(LinkedList<PlayingCard> deck, LinkedList<PlayingCard> discardPile){
-        if(deck.isEmpty())
-            deck = Match.discardIntoDeck(discardPile);
-        System.out.println(character.getName() + ": (Drawn: " + deck.getFirst());
-        hand.add(deck.removeFirst());
+    public void draw(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+        if(Deck.isEmpty())
+            Deck = Match.discardIntoDeck(DiscardPile);
+        System.out.println(character.getName() + ": (Drawn: " + Deck.getFirst());
+        Hand.add(Deck.removeFirst());
     }
 
-    public void discard(int card, LinkedList<PlayingCard> discardPile){
-        hand.remove(card).discard(discardPile);
+    public void discard(int card, LinkedList<PlayingCard> DiscardPile){
+        Hand.remove(card).discard(DiscardPile);
     }
 
-    public void discard(int card, LinkedList<PlayingCard> discardPile, LinkedList<PlayingCard> deck){
-        hand.remove(card).discard(discardPile);
-        suzyLafayette(deck, discardPile);
+    public void discard(int card, LinkedList<PlayingCard> DiscardPile, LinkedList<PlayingCard> Deck){
+        Hand.remove(card).discard(DiscardPile);
+        suzyLafayette(Deck, DiscardPile);
     }
 
-    public void discard(PlayingCard card, LinkedList<PlayingCard> discardPile, LinkedList<PlayingCard> deck){
+    public void discard(PlayingCard card, LinkedList<PlayingCard> DiscardPile){
         if(getHand().remove(card))
-            card.discard(discardPile);
-        suzyLafayette(deck, discardPile);
+            card.discard(DiscardPile);
     }
 
-    public PlayingCard removeFromHand(int card, LinkedList<PlayingCard> deck, LinkedList<PlayingCard> discardPile){
-        PlayingCard c = hand.remove(card);
-        suzyLafayette(deck, discardPile);
+    public void discard(PlayingCard card, LinkedList<PlayingCard> DiscardPile, LinkedList<PlayingCard> Deck){
+        if(getHand().remove(card))
+            card.discard(DiscardPile);
+        suzyLafayette(Deck, DiscardPile);
+    }
+
+    public PlayingCard removeFromHand(int card, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+        PlayingCard c = Hand.remove(card);
+        suzyLafayette(Deck, DiscardPile);
         return c;
     }
 
-    public boolean removeFromHand(PlayingCard card, LinkedList<PlayingCard> deck, LinkedList<PlayingCard> discardPile){
-        boolean b = hand.remove(card);
-        suzyLafayette(deck, discardPile);
+    public boolean removeFromHand(PlayingCard card, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+        boolean b = Hand.remove(card);
+        suzyLafayette(Deck, DiscardPile);
         return b;
     }
 
-    public void suzyLafayette(LinkedList<PlayingCard> deck, LinkedList<PlayingCard> discardPile){
-        if(character.getName() == "Suzy Lafayette" && hand.isEmpty())
-            draw(deck, discardPile);
+    public void suzyLafayette(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+        if(character.getName() == "Suzy Lafayette" && Hand.isEmpty())
+            draw(Deck, DiscardPile);
+    }
+    
+    public boolean jourdonnais(Scanner input, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+        if(character.getName() == "Jourdonnais"){
+            int choice;
+            do{
+                System.out.println(this + " <Choose 1 to activate your character's ability or 0 to ignore");
+                choice = input.nextInt();
+            }while(choice < 0 || choice > 1);
+            if(choice == 1)
+                if(Match.drawHearts(Deck, DiscardPile)){
+                    System.out.println("Missed!");
+                    return true;
+                }
+        }
+        return false;
+    }
+    
+    public boolean savingBeer(Scanner input, LinkedList<PlayingCard> DiscardPile, int nPlayers){
+        System.out.println(this + ": You are losing your last life point");
+        boolean goOn, done = false;
+        do{
+            goOn = sidKetchum(DiscardPile, input);
+            done |= goOn;
+        }while(goOn);
+        if(done)
+            return true;
+        LinkedList<PlayingCard> Beers = new LinkedList<PlayingCard>();
+        for(PlayingCard card : Hand)
+            if(card.getName() == "Beer")
+                Beers.add(card);
+        int choice;
+        if(!Beers.isEmpty()){
+            int nBeers = Beers.size();
+            do{
+                System.out.println(this + " (Your beers:");
+                for(int i = 0; i < nBeers; i++)
+                    System.out.println((i+1) + ") " + Hand.get(i));
+                System.out.println(this + " <Choose a beer or 0 to ignore");
+                choice = input.nextInt() - 1;
+            }while(choice < -1 || choice >= nBeers);
+            if(choice != -1){
+                this.discard(Beers.get(choice), DiscardPile);
+                if(nPlayers > 2)
+                    return true;
+            }
+        }
+        return false;
     }
     
     public void readHand(){
-        if(hand.isEmpty())
-            System.out.println(character.getName() + ": You don't have any card in your hand");
+        if(Hand.isEmpty())
+            System.out.println(character.getName() + ": You don't have any card in your Hand");
         else{
             System.out.println(character.getName() + ": (Your hand:");
             int i = 1;
-            for(PlayingCard card : hand)
+            for(PlayingCard card : Hand)
                 System.out.println((i++) + ": " + card);
         }
     }
@@ -218,29 +271,29 @@ public class Player {
         System.out.println(character.getName() + ": (You are a " + role);
     }
     
-    public boolean sidKetchum(LinkedList<PlayingCard> discardPile, Scanner input){
-        int handSize = hand.size();
+    public boolean sidKetchum(LinkedList<PlayingCard> DiscardPile, Scanner input){
+        int handSize = Hand.size();
         if(handSize >= 2){
             int choice;
             readHand();
             do{    
-                System.out.println("Sid Ketchum: Insert 1 to activate your character's ability or 0 to ignore ");
+                System.out.println(this + ": <Insert 1 to activate your character's ability or 0 to ignore");
                 choice = input.nextInt();
             }while(choice < 0 || choice > 1);
             if(choice == 1){
                 readHand();
                 do{
-                    System.out.println("Select a card to discard ");
+                    System.out.println("<Choose a card to discard");
                     choice = input.nextInt() - 1;
                 }while(choice < 0 || choice >= handSize);
-                discard(choice, discardPile);
+                discard(choice, DiscardPile);
                 handSize--;
                 readHand();
                 do{
-                    System.out.println("Select a card to discard ");
+                    System.out.println("<Choose a card to discard");
                     choice = input.nextInt() - 1;
                 }while(choice < 0 || choice >= handSize);
-                discard(choice, discardPile);
+                discard(choice, DiscardPile);
                 addLife();
                 return true;
             }
@@ -252,21 +305,21 @@ public class Player {
         lives--;
     }
 
-    public void discardAll(Scanner input, LinkedList<PlayingCard> discardPile, LinkedList<PlayingCard> deck){
-        int handSize = hand.size();
-        int nTot = handSize + activeCards.size();
+    public void discardAll(Scanner input, LinkedList<PlayingCard> DiscardPile, LinkedList<PlayingCard> Deck){
+        int handSize = Hand.size();
+        int nTot = handSize + ActiveCards.size();
         if(isWeapon())
             nTot++;
-        PlayingCard toDiscard[] = new PlayingCard[nTot];
+        PlayingCard ToDiscard[] = new PlayingCard[nTot];
         int i = 0;
-        for (PlayingCard card : hand)
-            toDiscard[i++] = card;
-        for (PlayingCard card : activeCards)
-            toDiscard[i++] = card;
+        for (PlayingCard card : Hand)
+            ToDiscard[i++] = card;
+        for (PlayingCard card : ActiveCards)
+            ToDiscard[i++] = card;
         if(isWeapon())
-            toDiscard[i] = weapon;
+            ToDiscard[i] = weapon;
         i = 1;
-        for (PlayingCard card : toDiscard)
+        for (PlayingCard card : ToDiscard)
             System.out.println((i++) + ") " + card);
         if(nTot > 0)
             System.out.println(this.toString() + " <Choose how to discard your cards ");
@@ -274,15 +327,15 @@ public class Player {
         for(i = 0; i < nTot; i++){
             do{
                 choice = input.nextInt() - 1;
-            }while(choice < 0 || choice >= nTot || toDiscard[choice] == null);
+            }while(choice < 0 || choice >= nTot || ToDiscard[choice] == null);
             if(choice < handSize)
-                hand.remove(choice).discard(discardPile);
+                Hand.remove(choice).discard(DiscardPile);
             else
-                activeCards.remove(choice - handSize);
-            toDiscard[choice] = null;
+                ActiveCards.remove(choice - handSize);
+            ToDiscard[choice] = null;
         }
         if(lives > 0)
-            suzyLafayette(deck, discardPile);
+            suzyLafayette(Deck, DiscardPile);
     }
 
     @Override
