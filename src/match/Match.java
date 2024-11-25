@@ -704,18 +704,18 @@ public class Match {
     private void printActiveCards(int choice){
         if(choice == 0){
             for(int i = 0; i < nPlayers; i++){
-                if(!Players[i].getActiveCards().isEmpty())
+                if(!Players[i].getActiveCards().isEmpty() && !Players[i].isWeapon())
                     System.out.println(Players[i] + " active cards:\n" + Players[i].stringActiveCards());
                 else
                     System.out.println(Players[i] + " has no active cards");
             }
         }
         else{
-            choice--;
-            if(!Players[choice].getActiveCards().isEmpty())
-                System.out.println(Players[choice] + " active cards:\n" + Players[choice].stringActiveCards());
+            Player p = Players[choice - 1];
+            if(!p.getActiveCards().isEmpty() && !p.isWeapon())
+                System.out.println(p + " active cards:\n" + p.stringActiveCards());
             else
-                System.out.println(Players[choice] + " has no active cards");
+                System.out.println(p + " has no active cards");
         }
     }
 
@@ -756,10 +756,8 @@ public class Match {
                 if(i != turnPlayerIx)
                     System.out.println(Players[i] + "'s distance from you:\n" + Distances[i]);
         }
-        else{
-            choice--;
-            System.out.println(Players[choice] + "'s distance from you:\n" + Distances[choice]);
-        }
+        else
+            System.out.println(Players[choice - 1] + "'s distance from you:\n" + Distances[choice - 1]);
     }
 
     private boolean bang(int defender){
