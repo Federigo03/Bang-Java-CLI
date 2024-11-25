@@ -237,7 +237,7 @@ public class Player {
         return false;
     }
     
-    public boolean savingBeer(Scanner input, LinkedList<PlayingCard> DiscardPile, int nPlayers){
+    public boolean savingBeer(Scanner input, LinkedList<PlayingCard> DiscardPile, boolean twoPlayers){
         System.out.println(this + ": You are losing your last life point");
         boolean goOn, done = false;
         do{
@@ -262,7 +262,7 @@ public class Player {
             }while(choice < -1 || choice >= nBeers);
             if(choice != -1){
                 this.discard(Beers.get(choice), DiscardPile);
-                if(nPlayers > 2)
+                if(!twoPlayers)
                     return true;
             }
         }
@@ -353,6 +353,6 @@ public class Player {
 
     @Override
     public String toString(){
-        return character.getName();
+        return name + "(" + character.getName() + ")";
     }
 }

@@ -52,6 +52,6 @@ public class Weapon extends PlayingCard {
 
     @Override
     public String toString(){
-        return super.toString() + " Range:(" + range + ")";
+        return super.toString() + " Range: " + range;
     }
 }
