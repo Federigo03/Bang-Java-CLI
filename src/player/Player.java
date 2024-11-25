@@ -23,9 +23,22 @@ public class Player {
         setName(name);
         setRole(role);
         setCharacter(character);
+        System.out.println(name + " is " + character.getName());
         setLives(startingLives);
         setWeapon(null);
         startingDraw(Deck);
+    }
+
+    public Player(String role, Characters character, Scanner input, LinkedList<PlayingCard> Deck) {
+        System.out.println("<Insert your name");
+        setName(input.nextLine());
+        setRole(role);
+        setCharacter(character);
+        System.out.println(name + " is " + character.getName());
+        setLives(startingLives);
+        setWeapon(null);
+        startingDraw(Deck);
+        readRole();
     }
 
     public String getName(){

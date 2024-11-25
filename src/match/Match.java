@@ -11,10 +11,10 @@ public class Match {
     private int nPlayers;
     final private Player[] Players;
     private LinkedList<PlayingCard> Deck;
-    private LinkedList<PlayingCard> DiscardPile;
+    private LinkedList<PlayingCard> DiscardPile = new LinkedList<PlayingCard>();
     private int sheriffIx;
     private int sidKetchumIx;
-    private Scanner input;
+    final private Scanner input = new Scanner(System.in);
     private int turnPlayerIx;
     private Player turnPlayer;
     private int Distances[];
@@ -24,24 +24,24 @@ public class Match {
         if(nStartingPlayers > 7 || nStartingPlayers < 4){
             System.err.println("Invalid number of players");
             System.exit(-1);
-        } 
+        }
         nPlayers = nStartingPlayers;
-        final String[] Names = new String[nPlayers];
+        final String[] Roles = drawRoles();
+        final Characters[] Characters = drawCharacters(createCharacters());
+        Deck = shuffle(createCards());
+        Players = new Player[nStartingPlayers];
+        /**final String[] Names = new String[nPlayers];
         for(int i = 0; i < nPlayers; i++)
             Names[i] = "Player " + (i+1);
-        final String[] Roles = drawRoles();
-        final Characters[] Characters = drawCharacters(createCharacters(), Names);
-        Deck = shuffle(createCards());
-        DiscardPile = new LinkedList<PlayingCard>();
-        Players = new Player[nPlayers];
         for(int i = 0; i < nPlayers; i++){
             Players[i] = new Player(Roles[i], Characters[i], Names[i], Deck);
             Players[i].readRole();
-        }
-        sheriffIx = findSheriff(Roles, Names);
+        }*/
+        for(int i = 0; i < nStartingPlayers; i++)
+            Players[i] = new Player(Roles[i], Characters[i], input, Deck);
+        sheriffIx = findSheriff();
         turnPlayerIx = sheriffIx;
-        sidKetchumIx = findCharacter("Sid Ketchum");        
-        input = new Scanner(System.in);
+        sidKetchumIx = findCharacter("Sid Ketchum");
         skipTurn:
         while (true) {
             turnPlayer = Players[turnPlayerIx];
@@ -488,15 +488,6 @@ public class Match {
         }
     }
 
-    private int findSheriff(String[] Roles, String[] Names){
-        for(int i = 0; i < nPlayers; i++)
-            if(Roles[i] == "Sheriff"){
-                System.out.println(Names[i] + " is the Sheriff");
-                return i;
-            }
-        return -1;
-    }
-
     private int findSheriff(){
         for(int i = 0; i < nPlayers; i++)
             if(Players[i].getRole() == "Sheriff"){
@@ -547,14 +538,13 @@ public class Match {
         return Roles;
     }
 
-    private Characters[] drawCharacters(Characters[] availableCharacters, String[] Names){
+    private Characters[] drawCharacters(Characters[] availableCharacters){
         Characters[] Characters = new Characters[nPlayers];
         int n = availableCharacters.length - 1;
         for(int i = 0; i < nPlayers; i++){
             int pick = (int) (Math.random() * (availableCharacters.length - i));
             Characters[i] = availableCharacters[pick];
             availableCharacters[pick] = availableCharacters[n - i];
-            System.out.println(Names[i] + " is " + Characters[i]);
         }
         return Characters;
     }
