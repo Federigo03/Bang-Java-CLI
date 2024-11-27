@@ -9,12 +9,12 @@ import match.*;
 
 public class Player {
     private String name;
+    private int startingLives;
     private int lives;
     private String role;
     private Characters character;
     private int range;
     private boolean unlimitedBang;
-    private int startingLives;
     private LinkedList<PlayingCard> Hand = new LinkedList<PlayingCard>();  
     private LinkedList<PlayingCard> ActiveCards = new LinkedList<PlayingCard>();
     private Weapon weapon;
@@ -71,9 +71,10 @@ public class Player {
 
     public void setCharacter(Characters character) {
         this.character = character;
-        setStartingLives(character.getStartingLives());
         if(role == "Sheriff")
-            startingLives++;
+            setStartingLives(character.getStartingLives() + 1);
+        else
+            setStartingLives(character.getStartingLives());
     }
 
     public int getRange() {
@@ -98,6 +99,10 @@ public class Player {
 
     public void setStartingLives(int startingLives) {
         this.startingLives = startingLives;
+    }
+    
+    public LinkedList<PlayingCard> getHand() {
+        return this.Hand;
     }
  
     public Weapon getWeapon() {
@@ -153,14 +158,10 @@ public class Player {
     public String stringActiveCards(){
         String s = new String();
         if(isWeapon())
-            s += weapon + "\n";
+            s += "\t" + weapon + "\n";
         for (PlayingCard card : ActiveCards)
-            s += card + "\n";
-        return s;
-    }
-
-    public LinkedList<PlayingCard> getHand() {
-        return this.Hand;
+            s += "\t" + card + "\n";
+        return s.stripTrailing();
     }
     
     public void addLife(){
@@ -168,6 +169,10 @@ public class Player {
             lives++;
             System.out.println(this + " gained a life");
         }
+    }
+    
+    public void subLife(){
+        lives--;
     }
 
     private void startingDraw(LinkedList<PlayingCard> Deck){
@@ -179,7 +184,7 @@ public class Player {
     
     public void draw(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
         if(Deck.isEmpty())
-            Deck = Match.discardIntoDeck(DiscardPile);
+            Deck.addAll(Match.discardIntoDeck(DiscardPile));
         System.out.println(character.getName() + ": (Drawn: " + Deck.getFirst());
         Hand.add(Deck.removeFirst());
     }
@@ -312,10 +317,6 @@ public class Player {
             }
         }
         return false;
-    }
-
-    public void subLife(){
-        lives--;
     }
 
     public void discardAll(Scanner input, LinkedList<PlayingCard> DiscardPile, LinkedList<PlayingCard> Deck){

@@ -41,7 +41,8 @@ public class PlayingCard {
         discardPile.addFirst(this);
     }
     
+    @Override
     public String toString() {
-        return getName() + " (" +getRank() + getSuit() + ")";
+        return getName() + " (" + getRank() + getSuit() + ")";
     }
 }
