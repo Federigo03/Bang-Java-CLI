@@ -269,11 +269,11 @@ public class Player {
                 }
             do{
                 System.out.println(this + ": <Choose which one you want to use");
-                choice1 = input.nextInt() - 1;
+                choice1 = nextInt(input) - 1;
             }while (choice1 < 0 || choice1 > 1);
             do{
                 System.out.println(this + ": <Choose which one you want to discard before");
-                choice2= input.nextInt() - 1;
+                choice2= nextInt(input) - 1;
             }while (choice2 < 0 || choice2 > 1);
             if(choice2 == 0){
                 tmp[0].discard(DiscardPile);
@@ -309,10 +309,10 @@ public class Player {
         }
         int choice, x;
         do{
-            choice = input.nextInt() - 1;
+            choice = nextInt(input) - 1;
         }while(choice < 0 || choice >= 3);
         do{
-            x = input.nextInt() - 1;
+            x = nextInt(input) - 1;
         }while (x < 0 || x >= 3 || x == choice);
         System.out.println(this + "(Drawn: " + t[choice]);
         System.out.println(this + "(Drawn: " + t[x]);
@@ -330,7 +330,7 @@ public class Player {
         int choice;
         do{
             System.out.println(this + ": <Insert 1 to activate your character's ability or 0 to ignore");
-            choice = input.nextInt();
+            choice = nextInt(input);
         }while(choice < 0 || choice > 1);
         if(choice == 1){
             if(!DiscardPile.isEmpty())
@@ -350,7 +350,7 @@ public class Player {
             int choice;
             do{
                 System.out.println(this + " <Choose 1 to activate your character's ability or 0 to ignore");
-                choice = input.nextInt();
+                choice = nextInt(input);
             }while(choice < 0 || choice > 1);
             if(choice == 1)
                 if(drawHearts(Deck, DiscardPile, input)){
@@ -368,20 +368,20 @@ public class Player {
             readHand();
             do{    
                 System.out.println(this + ": <Insert 1 to activate your character's ability or 0 to ignore");
-                choice = input.nextInt();
+                choice = nextInt(input);
             }while(choice < 0 || choice > 1);
             if(choice == 1){
                 readHand();
                 do{
                     System.out.println("<Choose a card to discard");
-                    choice = input.nextInt() - 1;
+                    choice = nextInt(input) - 1;
                 }while(choice < 0 || choice >= handSize);
                 discard(choice, DiscardPile);
                 handSize--;
                 readHand();
                 do{
                     System.out.println("<Choose a card to discard");
-                    choice = input.nextInt() - 1;
+                    choice = nextInt(input) - 1;
                 }while(choice < 0 || choice >= handSize);
                 discard(choice, DiscardPile);
                 addLife();
@@ -416,7 +416,7 @@ public class Player {
                 for(int i = 0; i < nBeers; i++)
                     System.out.println((i+1) + ") " + Hand.get(i));
                 System.out.println(this + " <Choose a beer or 0 to ignore");
-                choice = input.nextInt() - 1;
+                choice = nextInt(input) - 1;
             }while(choice < -1 || choice >= nBeers);
             if(choice != -1){
                 this.discard(Beers.get(choice), DiscardPile);
@@ -434,7 +434,7 @@ public class Player {
             readHand();
             do{
                 System.out.println(this + " <Choose a card to discard");
-                choice = input.nextInt() - 1;
+                choice = nextInt(input) - 1;
             }while(choice < 0 || choice >= handSize);
             discard(choice, DiscardPile);
             handSize--;
@@ -462,7 +462,7 @@ public class Player {
         int choice;
         for(i = 0; i < nTot; i++){
             do{
-                choice = input.nextInt() - 1;
+                choice = nextInt(input) - 1;
             }while(choice < 0 || choice >= nTot || ToDiscard[choice] == null);
             if(choice < handSize)
                 ToDiscard[choice].discard(DiscardPile);
@@ -487,6 +487,16 @@ public class Player {
 
     public void readRole(){
         System.out.println(this + ": (You are a " + role);
+    }
+    
+    private int nextInt(Scanner input){
+        do{
+            try {
+                return input.nextInt();
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+        }while(true);
     }
     
     @Override

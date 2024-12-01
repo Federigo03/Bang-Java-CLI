@@ -20,7 +20,7 @@ public class App {
         try {
             new Match(nStartingPlayers, inputName);
         } catch (Exception e) {
-            System.out.println("Wrong input" + e);
+            System.out.println("Wrong input\n" + e);
         }
     }
 }
