@@ -171,13 +171,14 @@ public class Player {
         }
     }
     
-    public void subLife(){
+    public void subLife(){  
         lives--;
+        System.out.println(this + " lost a life");
     }
 
     private void startingDraw(LinkedList<PlayingCard> Deck){
         for(int i = 0; i < lives; i++){
-            System.out.println(character.getName() + ": (Drawn: " + Deck.getFirst());
+            System.out.println(this + ": (Drawn: " + Deck.getFirst());
             Hand.add(Deck.removeFirst());
         }
     }
@@ -198,7 +199,7 @@ public class Player {
     public void draw(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
         if(Deck.isEmpty())
             Deck.addAll(Match.discardIntoDeck(DiscardPile));
-        System.out.println(character.getName() + ": (Drawn: " + Deck.getFirst());
+        System.out.println(this + ": (Drawn: " + Deck.getFirst());
         Hand.add(Deck.removeFirst());
     }
 
@@ -391,9 +392,9 @@ public class Player {
     }
     
     public boolean savingBeer(Scanner input, LinkedList<PlayingCard> DiscardPile, boolean twoPlayers){
-        System.out.println(this + ": You are losing your last life point");
         boolean goOn, done = false;
         if(character.getName() == "Sid Ketchum"){
+            System.out.println(this + " is losing his last life point");
             do{
                 goOn = sidKetchum(DiscardPile, input);
                 done |= goOn;
@@ -406,6 +407,8 @@ public class Player {
             if(card.getName() == "Beer")
                 Beers.add(card);
         if(!Beers.isEmpty()){
+            if(character.getName() != "Sid Ketchum")
+                System.out.println(this + " is losing his last life point");
             int nBeers = Beers.size();
             int choice;
             do{
@@ -462,9 +465,9 @@ public class Player {
                 choice = input.nextInt() - 1;
             }while(choice < 0 || choice >= nTot || ToDiscard[choice] == null);
             if(choice < handSize)
-                Hand.remove(choice).discard(DiscardPile);
+                ToDiscard[choice].discard(DiscardPile);
             else
-                ActiveCards.remove(choice - handSize);
+                ToDiscard[choice - handSize].discard(DiscardPile);
             ToDiscard[choice] = null;
         }
         if(lives > 0)
@@ -473,9 +476,9 @@ public class Player {
     
     public void readHand(){
         if(Hand.isEmpty())
-            System.out.println(character.getName() + ": You don't have any card in your hand");
+            System.out.println(this + ": You don't have any card in your hand");
         else{
-            System.out.println(character.getName() + ": (Your hand:");
+            System.out.println(this + ": (Your hand:");
             int i = 1;
             for(PlayingCard card : Hand)
                 System.out.println((i++) + ": " + card);
@@ -483,7 +486,7 @@ public class Player {
     }
 
     public void readRole(){
-        System.out.println(character.getName() + ": (You are a " + role);
+        System.out.println(this + ": (You are a " + role);
     }
     
     @Override

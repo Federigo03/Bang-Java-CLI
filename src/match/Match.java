@@ -699,7 +699,7 @@ public class Match {
         else{
             Player p = Players[choice - 1];
             if(!p.getActiveCards().isEmpty() || p.isWeapon())
-                System.out.print(p + " active cards:\n" + p.stringActiveCards());
+                System.out.println(p + " active cards:\n" + p.stringActiveCards());
             else
                 System.out.println(p + " has no active cards");
         }
