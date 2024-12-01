@@ -182,6 +182,19 @@ public class Player {
         }
     }
     
+    public void firstPhase(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile, int drawn, Scanner input){
+        for(; drawn < 2; drawn++){
+            if(character.getName() == "Black Jack" && drawn == 1){
+                if(Deck.isEmpty())
+                    Deck = Match.discardIntoDeck(DiscardPile);
+                System.out.println(this + " revealed " + Deck.getFirst());
+                if(Deck.getFirst().getSuit() == 'H' || Deck.getFirst().getSuit() == 'D')
+                    this.draw(Deck, DiscardPile);
+            }
+            this.draw(Deck, DiscardPile);
+        }
+    }
+    
     public void draw(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
         if(Deck.isEmpty())
             Deck.addAll(Match.discardIntoDeck(DiscardPile));
@@ -221,6 +234,111 @@ public class Player {
         return b;
     }
 
+    public boolean explosion(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile, Scanner input, boolean twoPlayers){
+        removeActiveCard("Dynamite").discard(DiscardPile);
+        System.out.println("Dynamite exploded: " + this + " is going to lose 3 lives");
+        for(int i = 0; i < 3; i++){
+            if(lives == 1){
+                if(!savingBeer(input, DiscardPile, twoPlayers)){
+                    subLife();
+                    return true;
+                }
+            }
+            else
+                subLife();
+        }
+        if(character.getName() == "Bart Cassidy")
+            for(int i = 0; i < 3; i++)
+                draw(Deck, DiscardPile);
+        suzyLafayette(Deck, DiscardPile);
+        if(character.getName() == "Sid Ketchum")
+            sidKetchum(DiscardPile, input);
+        return false;
+    }
+    
+    public boolean drawHearts(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile, Scanner input){
+        if(character.getName() == "Lucky Duke"){
+            PlayingCard[] tmp = new PlayingCard[2];
+            int choice1, choice2;
+            for(int i = 0; i < 2; i++)
+                if(Deck.isEmpty()){
+                    Deck.addAll(Match.discardIntoDeck(DiscardPile));
+                tmp[i] = Deck.removeFirst();
+                System.out.println((i+1) + ") " + tmp[i]);
+                }
+            do{
+                System.out.println(this + ": <Choose which one you want to use");
+                choice1 = input.nextInt() - 1;
+            }while (choice1 < 0 || choice1 > 1);
+            do{
+                System.out.println(this + ": <Choose which one you want to discard before");
+                choice2= input.nextInt() - 1;
+            }while (choice2 < 0 || choice2 > 1);
+            if(choice2 == 0){
+                tmp[0].discard(DiscardPile);
+                tmp[1].discard(DiscardPile);
+            }
+            else{
+                tmp[1].discard(DiscardPile);
+                tmp[0].discard(DiscardPile);
+            }
+            if(tmp[choice1].getSuit() == 'H')
+                return true;
+            return false;
+        }
+        else{
+            if(Deck.isEmpty())
+                Deck.addAll(Match.discardIntoDeck(DiscardPile));
+            Deck.removeFirst().discard(DiscardPile);
+            System.out.println(DiscardPile.getFirst() + " \"drawn\" for effect");
+            if(DiscardPile.getFirst().getSuit() == 'H')
+                return true;
+            return false;
+        }
+    }
+    
+    public void kitCarlson(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile, Scanner input){
+        PlayingCard[] t = new PlayingCard[3];
+        System.out.println(this + ": <Choose two of these");                    
+        for(int j = 0; j < 3; j++){
+            if(Deck.isEmpty())
+                Deck = Match.discardIntoDeck(DiscardPile);
+            t[j] = Deck.removeFirst();
+            System.out.println((j+1) + ") " + t[j]);
+        }
+        int choice, x;
+        do{
+            choice = input.nextInt() - 1;
+        }while(choice < 0 || choice >= 3);
+        do{
+            x = input.nextInt() - 1;
+        }while (x < 0 || x >= 3 || x == choice);
+        System.out.println(this + "(Drawn: " + t[choice]);
+        System.out.println(this + "(Drawn: " + t[x]);
+        this.getHand().add(t[choice]);
+        this.getHand().add(t[x]);
+        if(x + choice == 1)
+            Deck.addFirst(t[2]);
+        else if(x + choice == 2)
+            Deck.addFirst(t[1]);
+        else
+            Deck.addFirst(t[0]);
+    }
+
+    public boolean pedroRamirez(LinkedList<PlayingCard> DiscardPile, Scanner input){
+        int choice;
+        do{
+            System.out.println(this + ": <Insert 1 to activate your character's ability or 0 to ignore");
+            choice = input.nextInt();
+        }while(choice < 0 || choice > 1);
+        if(choice == 1){
+            if(!DiscardPile.isEmpty())
+                this.draw(DiscardPile, null);
+            return true;
+        }
+        return false;
+    }
+    
     public void suzyLafayette(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
         if(character.getName() == "Suzy Lafayette" && Hand.isEmpty())
             draw(Deck, DiscardPile);
@@ -234,59 +352,12 @@ public class Player {
                 choice = input.nextInt();
             }while(choice < 0 || choice > 1);
             if(choice == 1)
-                if(Match.drawHearts(Deck, DiscardPile)){
+                if(drawHearts(Deck, DiscardPile, input)){
                     System.out.println("Missed!");
                     return true;
                 }
         }
         return false;
-    }
-    
-    public boolean savingBeer(Scanner input, LinkedList<PlayingCard> DiscardPile, boolean twoPlayers){
-        System.out.println(this + ": You are losing your last life point");
-        boolean goOn, done = false;
-        do{
-            goOn = sidKetchum(DiscardPile, input);
-            done |= goOn;
-        }while(goOn);
-        if(done)
-            return true;
-        LinkedList<PlayingCard> Beers = new LinkedList<PlayingCard>();
-        for(PlayingCard card : Hand)
-            if(card.getName() == "Beer")
-                Beers.add(card);
-        int choice;
-        if(!Beers.isEmpty()){
-            int nBeers = Beers.size();
-            do{
-                System.out.println(this + " (Your beers:");
-                for(int i = 0; i < nBeers; i++)
-                    System.out.println((i+1) + ") " + Hand.get(i));
-                System.out.println(this + " <Choose a beer or 0 to ignore");
-                choice = input.nextInt() - 1;
-            }while(choice < -1 || choice >= nBeers);
-            if(choice != -1){
-                this.discard(Beers.get(choice), DiscardPile);
-                if(!twoPlayers)
-                    return true;
-            }
-        }
-        return false;
-    }
-    
-    public void readHand(){
-        if(Hand.isEmpty())
-            System.out.println(character.getName() + ": You don't have any card in your Hand");
-        else{
-            System.out.println(character.getName() + ": (Your hand:");
-            int i = 1;
-            for(PlayingCard card : Hand)
-                System.out.println((i++) + ": " + card);
-        }
-    }
-
-    public void readRole(){
-        System.out.println(character.getName() + ": (You are a " + role);
     }
     
     public boolean sidKetchum(LinkedList<PlayingCard> DiscardPile, Scanner input){
@@ -318,7 +389,55 @@ public class Player {
         }
         return false;
     }
-
+    
+    public boolean savingBeer(Scanner input, LinkedList<PlayingCard> DiscardPile, boolean twoPlayers){
+        System.out.println(this + ": You are losing your last life point");
+        boolean goOn, done = false;
+        if(character.getName() == "Sid Ketchum"){
+            do{
+                goOn = sidKetchum(DiscardPile, input);
+                done |= goOn;
+            }while(goOn);
+            if(done)
+                return true;
+        }
+        LinkedList<PlayingCard> Beers = new LinkedList<PlayingCard>();
+        for(PlayingCard card : Hand)
+            if(card.getName() == "Beer")
+                Beers.add(card);
+        if(!Beers.isEmpty()){
+            int nBeers = Beers.size();
+            int choice;
+            do{
+                System.out.println(this + " (Your beers:");
+                for(int i = 0; i < nBeers; i++)
+                    System.out.println((i+1) + ") " + Hand.get(i));
+                System.out.println(this + " <Choose a beer or 0 to ignore");
+                choice = input.nextInt() - 1;
+            }while(choice < -1 || choice >= nBeers);
+            if(choice != -1){
+                this.discard(Beers.get(choice), DiscardPile);
+                if(!twoPlayers)
+                    return true;
+            }
+        }
+        return false;
+    }
+    
+    public void thirdPhase(LinkedList<PlayingCard> DiscardPile, Scanner input){
+        int handSize = Hand.size(), choice;
+        while(handSize > lives){
+            System.out.println(this + " has to discard cards until those are the same number of his lives.");
+            readHand();
+            do{
+                System.out.println(this + " <Choose a card to discard");
+                choice = input.nextInt() - 1;
+            }while(choice < 0 || choice >= handSize);
+            discard(choice, DiscardPile);
+            handSize--;
+        }
+    }
+    
     public void discardAll(Scanner input, LinkedList<PlayingCard> DiscardPile, LinkedList<PlayingCard> Deck){
         int handSize = Hand.size();
         int nTot = handSize + ActiveCards.size();
@@ -351,7 +470,22 @@ public class Player {
         if(lives > 0)
             suzyLafayette(Deck, DiscardPile);
     }
+    
+    public void readHand(){
+        if(Hand.isEmpty())
+            System.out.println(character.getName() + ": You don't have any card in your hand");
+        else{
+            System.out.println(character.getName() + ": (Your hand:");
+            int i = 1;
+            for(PlayingCard card : Hand)
+                System.out.println((i++) + ": " + card);
+        }
+    }
 
+    public void readRole(){
+        System.out.println(character.getName() + ": (You are a " + role);
+    }
+    
     @Override
     public String toString(){
         return name + "(" + character.getName() + ")";

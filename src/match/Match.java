@@ -54,7 +54,7 @@ public class Match {
             turnPlayer.readHand();
             int choice, drawn = 0;
             if(turnPlayer.isActiveCard("Dynamite"))
-                if(dynamiteEffect(Deck, DiscardPile)){
+                if(dynamite(Deck, DiscardPile)){
                     if(endMatch(nStartingPlayers, new int[]{turnPlayerIx})){
                         match = false;
                         continue skipTurn;
@@ -63,13 +63,8 @@ public class Match {
                     continue skipTurn;
                 }
             if(turnPlayer.isActiveCard("Jail")){
-                System.out.println(turnPlayer + " drawing for Jail");
-                sidKetchum("", DiscardPile);
-                boolean res;
-                if(turnPlayer.getCharacter().getName() == "Lucky Duke")
-                    res = luckyDuke(Deck, DiscardPile);
-                else
-                    res = drawHearts(Deck, DiscardPile);
+                sidKetchum(turnPlayer + " drawing for Jail", DiscardPile);
+                boolean res = turnPlayer.drawHearts(Deck, DiscardPile, input);
                 turnPlayer.removeActiveCard("Jail").discard(DiscardPile);
                 if(!res){
                     if(turnPlayerIx == nPlayers - 1)
@@ -95,66 +90,26 @@ public class Match {
                         if(choice == -1)
                             break;
                         if(choice != turnPlayerIx && !Players[choice].getHand().isEmpty())
-                            panicEffect(turnPlayerIx, choice, Deck, DiscardPile);
+                            panic(turnPlayerIx, choice, Deck, DiscardPile);
                         drawn++;
                     }
                     break;
                 case "Kit Carlson":
-                    PlayingCard[] t = new PlayingCard[3];
-                    sidKetchum("", DiscardPile);
-                    System.out.println(turnPlayer + ": <Choose two of these");                    
-                    for(int j = 0; j < 3; j++){
-                        if(Deck.isEmpty())
-                            Deck = discardIntoDeck(DiscardPile);
-                        t[j] = Deck.removeFirst();
-                        System.out.println((j+1) + ") " + t[j]);
-                    }
-                    do{
-                        choice = input.nextInt() - 1;
-                    }while(choice < 0 || choice >= 3);
-                    int x;
-                    do{
-                        x = input.nextInt() - 1;
-                    }while (x < 0 || x >= 3 || x == choice);
-                    System.out.println(turnPlayer + "(Drawn: " + t[choice]);
-                    System.out.println(turnPlayer + "(Drawn: " + t[x]);
-                    turnPlayer.getHand().add(t[choice]);
-                    turnPlayer.getHand().add(t[x]);
-                    if(x + choice == 1)
-                        Deck.addFirst(t[2]);
-                    else if(x + choice == 2)
-                        Deck.addFirst(t[1]);
-                    else
-                        Deck.addFirst(t[0]);
+                    sidKetchum(turnPlayer + " can activate his ability", DiscardPile);
+                    turnPlayer.kitCarlson(Deck, DiscardPile, input);
                     drawn = 2;
                     break;
                 case "Pedro Ramirez":
                     readDiscard(DiscardPile);
                     sidKetchum(turnPlayer + " can activate his ability", DiscardPile);
-                    do{
-                        System.out.println(turnPlayer + ": <Insert 1 to activate your character's ability or 0 to ignore");
-                        choice = input.nextInt();
-                    }while(choice < 0 || choice > 1);
-                    if(choice == 1){
-                        if(!DiscardPile.isEmpty())
-                            turnPlayer.draw(DiscardPile, null);
+                    if(turnPlayer.pedroRamirez(DiscardPile, input))
                         drawn++;
-                    }
             }
-            sidKetchum("", DiscardPile);
-            for(; drawn < 2; drawn++){
-                if(turnPlayer.getCharacter().getName() == "Black Jack" && drawn == 1){
-                    if(Deck.isEmpty())
-                        Deck = discardIntoDeck(DiscardPile);
-                    System.out.println("Black Jack revealed " + Deck.getFirst());
-                    if(Deck.getFirst().getSuit() == 'H' || Deck.getFirst().getSuit() == 'D')
-                        turnPlayer.draw(Deck, DiscardPile);
-                }
-                turnPlayer.draw(Deck, DiscardPile);
-            }
+            sidKetchum(turnPlayer + " is going to draw", DiscardPile);
+            turnPlayer.firstPhase(Deck, DiscardPile, drawn, input);
             boolean goon = true, bang = false;
             Distances = distances();
-            sidKetchum("", DiscardPile);
+            sidKetchum(turnPlayer + " is starting is second phase", DiscardPile);
             turnPlayer.readHand();
             while(goon){
                 System.out.println(turnPlayer + ": <Choose an option:\n1: Print remaining lives.\n2: Print characters.\n3: Print the Sheriff.\n4: Number of cards in other's hand.\n5: Print your hand.\n6: Print your role.\n7: Print active cards.\n8: Print ranges\n9: Print distances.\n10: Print first card in the discard pile.\n11: Print remaining cards in the deck\n12: Play a card.\n13: Terminate your turn.");
@@ -224,11 +179,9 @@ public class Match {
                         System.out.println("cards remaining:" + Deck.size());
                         break;    
                     case 12:
-                        if(turnPlayer.getHand().isEmpty()){
-                            System.out.println("You have no cards in your hand");
-                            break;
-                        }
                         turnPlayer.readHand();
+                        if(turnPlayer.getHand().isEmpty())
+                            break;
                         do{
                             System.out.println(turnPlayer + ": <Choose the card you want to play or 0 to cancel");
                             choice = input.nextInt() - 1;
@@ -309,6 +262,8 @@ public class Match {
                                             turnPlayer.discard(card, DiscardPile);
                                             Players[target].getActiveCards().remove(choice-2).discard(DiscardPile);
                                             System.out.println(DiscardPile.getFirst() + " discarded by Cat Balou effect");
+                                            if(DiscardPile.getFirst().getName() == "Scope")
+                                                scope(false);
                                         }
                                         else if(choice == i){
                                             if(Players[target].isWeapon()){
@@ -350,12 +305,14 @@ public class Match {
                                             done = true;
                                             turnPlayer.discard(card, DiscardPile);
                                             if(turnPlayerIx != target && !Players[target].getHand().isEmpty())
-                                                panicEffect(turnPlayerIx, target, Deck, DiscardPile);;
+                                                panic(turnPlayerIx, target, Deck, DiscardPile);;
                                             turnPlayer.suzyLafayette(Deck, DiscardPile);
                                         }
                                         else if(choice < i && choice > 1){
                                             done = true;
                                             turnPlayer.discard(card, DiscardPile);
+                                            if(target == turnPlayerIx && turnPlayer.getActiveCards().get(choice - 2).getName() == "Scope")
+                                                scope(false);
                                             turnPlayer.getHand().add(Players[target].getActiveCards().remove(choice-2));
                                         }
                                         else if(choice == i){
@@ -365,23 +322,28 @@ public class Match {
                                                 turnPlayer.getHand().add(Players[target].removeWeapon());
                                             }
                                         }
-                                        if(done && choice != 0)
-                                            sidKetchum("", DiscardPile);
+                                        if(done){
+                                            if(choice != 0)
+                                                sidKetchum("", DiscardPile);
+                                        }
                                         else
                                             System.out.println("Wrong input");
                                     }while(!done);
                                     break;
                                 case "Wells Fargo":
                                     turnPlayer.discard(card, DiscardPile);
-                                    turnPlayer.draw(Deck, DiscardPile);
+                                    for(int i = 0; i < 3; i++)
+                                        turnPlayer.draw(Deck, DiscardPile);
+                                    sidKetchum("", DiscardPile);
+                                    break;
                                 case "Stagecoach":
-                                    if(name == "Stagecoach")
-                                        turnPlayer.discard(card, DiscardPile);                              
+                                    turnPlayer.discard(card, DiscardPile);             
                                     for(int i = 0; i < 2; i++)
                                         turnPlayer.draw(Deck, DiscardPile);
                                     sidKetchum("", DiscardPile);
                                     break;
                                 case "Scope":
+                                    scope(true);
                                 case "Barrel":
                                 case "Dynamite":
                                 case "Mustang":
@@ -491,17 +453,7 @@ public class Match {
                         System.out.println("Unavailable option.");
                 }
             }
-            int handSize = turnPlayer.getHand().size();
-            while(handSize > turnPlayer.getLives()){
-                System.out.println(turnPlayer + " has to discard cards until those are the same number of his lives.");
-                turnPlayer.readHand();
-                do{
-                    System.out.println(turnPlayer + " <Choose a card to discard");
-                    choice = input.nextInt() - 1;
-                }while(choice < 0 || choice >= handSize);
-                turnPlayer.discard(choice, DiscardPile);
-                handSize--;
-            }
+            turnPlayer.thirdPhase(DiscardPile, input);
             if(turnPlayerIx == nPlayers - 1)
                 turnPlayerIx = 0;
             else
@@ -516,26 +468,14 @@ public class Match {
         return P;
     }
 
+    public int getNPlayers(){
+        return Players.length;
+    }
+    
     public LinkedList<Player> getWinners(){
         return Winners;
     }
     
-    private int findSheriff(){
-        for(int i = 0; i < nPlayers; i++)
-            if(Players[i].getRole() == "Sheriff"){
-                System.out.println(Players[i] + " is the Sheriff");
-                return i;
-            }
-        return -1;
-    }
-
-    private int findCharacter(String name){
-        for(int i = 0; i < nPlayers; i++)
-            if(Players[i].getCharacter().getName() == name)
-                return i;
-        return -1;
-    }
-
     private Characters[] createCharacters(){ 
         Characters[] Characters = new Characters[16];
         Characters[0] = new Characters("Jesse Jones", 4, "He may draw his first card from the hand of a player.");
@@ -684,6 +624,22 @@ public class Match {
             Deck[i] = DiscardPile.remove();
         return shuffle(Deck);
     }
+    
+    private int findSheriff(){
+            for(int i = 0; i < nPlayers; i++)
+                if(Players[i].getRole() == "Sheriff"){
+                    System.out.println(Players[i] + " is the Sheriff");
+                    return i;
+                }
+            return -1;
+        }
+
+    private int findCharacter(String name){
+            for(int i = 0; i < nPlayers; i++)
+                if(Players[i].getCharacter().getName() == name)
+                    return i;
+            return -1;
+        }
 
     private void readDiscard(LinkedList<PlayingCard> DiscardPile){
         if(DiscardPile.isEmpty())
@@ -773,6 +729,17 @@ public class Match {
                     Distances[i]--;
             }
         return Distances;
+    }
+    
+    private void scope(boolean set){
+        int x;
+        if(set)
+            x = 1;
+        else
+            x = -1;
+        for(int i = 0; i < nPlayers; i++)
+            if(i != turnPlayerIx)
+                Distances[i] += x;
     }
     
     private void printDistances(int choice){
@@ -971,11 +938,7 @@ public class Match {
                 choice = input.nextInt();
             }while(choice < 0 || choice > 1);
             if(choice == 1){
-                boolean res;
-                if(defender.getCharacter().getName() == "Lucky Duke")
-                    res = luckyDuke(Deck, DiscardPile);
-                else
-                    res = drawHearts(Deck, DiscardPile);
+                boolean res = defender.drawHearts(Deck, DiscardPile, input);
                 if(res){
                     System.out.println("Missed!");
                     return true;
@@ -984,48 +947,9 @@ public class Match {
         }
         return false;
     }
-
-    private boolean luckyDuke(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
-        PlayingCard[] tmp = new PlayingCard[2];
-        int choice1, choice2;
-        for(int i = 0; i < 2; i++)
-            if(Deck.isEmpty()){
-                Deck .addAll(discardIntoDeck(DiscardPile));
-            tmp[i] = Deck.removeFirst();
-            System.out.println((i+1) + ") " + tmp[i]);
-            }
-        do{
-            System.out.println("Lucky Duke: <Choose which one you want to use");
-            choice1 = input.nextInt() - 1;
-        }while (choice1 < 0 || choice1 > 1);
-        do{
-            System.out.println("Lucky Duke: <Choose which one you want to discard before");
-            choice2= input.nextInt() - 1;
-        }while (choice2 < 0 || choice2 > 1);
-        if(choice2 == 0){
-            tmp[0].discard(DiscardPile);
-            tmp[1].discard(DiscardPile);
-        }
-        else{
-            tmp[1].discard(DiscardPile);
-            tmp[0].discard(DiscardPile);
-        }
-        if(tmp[choice1].getSuit() == 'H')
-            return true;
-        return false;
-    }   
-
-    static public boolean drawHearts(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
-        if(Deck.isEmpty())
-            Deck.addAll(discardIntoDeck(DiscardPile));
-        Deck.removeFirst().discard(DiscardPile);
-        System.out.println(DiscardPile.getFirst() + " \"drawn\" for effect");
-        if(DiscardPile.getFirst().getSuit() == 'H')
-            return true;
-        return false;
-    }
     
     private boolean subLife(int wounded, int attacker, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+        //not damage from dynamite
         if(Players[wounded].getLives() == 1){
             if(!Players[wounded].savingBeer(input, DiscardPile, nPlayers == 2)){
                 Players[wounded].subLife();
@@ -1033,38 +957,36 @@ public class Match {
             }
         }
         else
-            Players[wounded].subLife();
-        if(attacker >= 0){      //Ability at the end of the explosion            
-            turnPlayer.suzyLafayette(Deck, DiscardPile);
-            boolean firstSid;
-            if(wounded >= turnPlayerIx && sidKetchumIx >= turnPlayerIx || wounded < turnPlayerIx && sidKetchumIx < turnPlayerIx){
-                if(wounded < turnPlayerIx)
-                    firstSid = false;
-                else
-                    firstSid = true;
-            }
-            else if(wounded > turnPlayerIx)
+            Players[wounded].subLife();     
+        turnPlayer.suzyLafayette(Deck, DiscardPile);
+        boolean firstSid;
+        if(wounded >= turnPlayerIx && sidKetchumIx >= turnPlayerIx || wounded < turnPlayerIx && sidKetchumIx < turnPlayerIx){
+            if(wounded < turnPlayerIx)
                 firstSid = false;
             else
                 firstSid = true;
-            if(firstSid){
-                sidKetchum("", DiscardPile);
-                if(!Players[attacker].getHand().isEmpty() && Players[wounded].getCharacter().getName() == "El Gringo" && attacker != wounded)
-                    panicEffect(wounded, attacker, Deck, DiscardPile);
-                else if(Players[wounded].getCharacter().getName() == "Bart Cassidy")
-                    Players[wounded].draw(Deck, DiscardPile);
-                else
-                    Players[wounded].suzyLafayette(Deck, DiscardPile);
-            }
-            else{
-                if(!Players[attacker].getHand().isEmpty() && Players[wounded].getCharacter().getName() == "El Gringo" && attacker != wounded)
-                    panicEffect(wounded, attacker, Deck, DiscardPile);
-                else if(Players[wounded].getCharacter().getName() == "Bart Cassidy")
-                    Players[wounded].draw(Deck, DiscardPile);
-                else
-                    Players[wounded].suzyLafayette(Deck, DiscardPile);
-                sidKetchum("", DiscardPile);
-            }
+        }
+        else if(wounded > turnPlayerIx)
+            firstSid = false;
+        else
+            firstSid = true;
+        if(firstSid){
+            sidKetchum("", DiscardPile);
+            if(!Players[attacker].getHand().isEmpty() && Players[wounded].getCharacter().getName() == "El Gringo" && attacker != wounded)
+                panic(wounded, attacker, Deck, DiscardPile);
+            else if(Players[wounded].getCharacter().getName() == "Bart Cassidy")
+                Players[wounded].draw(Deck, DiscardPile);
+            else
+                Players[wounded].suzyLafayette(Deck, DiscardPile);
+        }
+        else{
+            if(!Players[attacker].getHand().isEmpty() && Players[wounded].getCharacter().getName() == "El Gringo" && attacker != wounded)
+                panic(wounded, attacker, Deck, DiscardPile);
+            else if(Players[wounded].getCharacter().getName() == "Bart Cassidy")
+                Players[wounded].draw(Deck, DiscardPile);
+            else
+                Players[wounded].suzyLafayette(Deck, DiscardPile);
+            sidKetchum("", DiscardPile);
         }
         return false;
     }
@@ -1126,7 +1048,7 @@ public class Match {
                     case "El Gringo":
                         if(!turnPlayer.getHand().isEmpty())
                             if(Hit.contains(i))
-                                panicEffect(i, turnPlayerIx, Deck, DiscardPile);;
+                                panic(i, turnPlayerIx, Deck, DiscardPile);;
                         break;
                     case "Bart Cassidy":
                         if(Hit.contains(i))
@@ -1169,7 +1091,7 @@ public class Match {
             Players[killed].discardAll(input, DiscardPile, Deck);
     }
     
-    private void panicEffect(int robber, int robbed, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    private void panic(int robber, int robbed, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
         PlayingCard rand = Players[robbed].getHand().remove((int) Math.random() * Players[robbed].getHand().size());
         System.out.println(Players[robber] + ": (Drawn " + rand);
         System.out.println(Players[robbed] + ": (" + Players[robber] + " robbed your " + rand);
@@ -1252,7 +1174,7 @@ public class Match {
             }
     }
 
-    private boolean dynamiteEffect(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    private boolean dynamite(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
         sidKetchum(turnPlayer + " drawing for Dynamite", DiscardPile);
         if(turnPlayer.getCharacter().getName() == "Lucky Duke"){
             PlayingCard[] tmp = new PlayingCard[2];
@@ -1280,7 +1202,7 @@ public class Match {
                 tmp[0].discard(DiscardPile);
             }
             if(tmp[choice1].getSuit() == 'S' && tmp[choice1].getRank() >= 2 && tmp[choice1].getRank() <= 9)
-                return explosion(Deck, DiscardPile);;
+                return turnPlayer.explosion(Deck, DiscardPile, input, nPlayers == 2);
         }
         else{
             if(Deck.isEmpty())
@@ -1288,7 +1210,7 @@ public class Match {
             Deck.removeFirst().discard(DiscardPile);
             System.out.println(DiscardPile.getFirst() + " drawn for effect of dynamite");
             if(DiscardPile.getFirst().getSuit() == 'S' && DiscardPile.getFirst().getRank() >= 2 && DiscardPile.getFirst().getRank() <= 9)
-                return explosion(Deck, DiscardPile);;
+                return turnPlayer.explosion(Deck, DiscardPile, input, nPlayers == 2);
         }
         for(int i = turnPlayerIx + 1; i != turnPlayerIx; i++){
             if(i == nPlayers)
@@ -1300,20 +1222,6 @@ public class Match {
             if(i == nPlayers - 1 && turnPlayerIx == 0)
                 i = -1;
         }
-        return false;
-    }
-
-    private boolean explosion(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
-        turnPlayer.removeActiveCard("Dynamite").discard(DiscardPile);
-        System.out.println("Dynamite exploded: " + turnPlayer + " is going to lose 3 lives");
-        for(int i = 0; i < 3; i++)
-            if(subLife(turnPlayerIx, -1, Deck, DiscardPile))
-                return true;
-        if(turnPlayer.getCharacter().getName() == "Bart Cassidy")
-            for(int i = 0; i < 3; i++)
-                turnPlayer.draw(Deck, DiscardPile);
-        turnPlayer.suzyLafayette(Deck, DiscardPile);
-        sidKetchum("", DiscardPile);
         return false;
     }
 
