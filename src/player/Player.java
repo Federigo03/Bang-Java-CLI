@@ -434,36 +434,55 @@ public class Player {
     }
     
     public void discardAll(Scanner input, LinkedList<PlayingCard> DiscardPile, LinkedList<PlayingCard> Deck){
-        int handSize = Hand.size();
-        int nTot = handSize + ActiveCards.size();
-        if(isWeapon())
-            nTot++;
-        PlayingCard ToDiscard[] = new PlayingCard[nTot];
-        int i = 0;
-        for (PlayingCard card : Hand)
-            ToDiscard[i++] = card;
-        for (PlayingCard card : ActiveCards)
-            ToDiscard[i++] = card;
-        if(isWeapon())
-            ToDiscard[i] = weapon;
-        i = 1;
-        for (PlayingCard card : ToDiscard)
-            System.out.println((i++) + ") " + card);
-        if(nTot > 0)
-            System.out.println(this.toString() + " <Choose how to discard your cards ");
         int choice;
-        for(i = 0; i < nTot; i++){
-            do{
-                choice = Utils.nextInt(input, "") - 1;
-            }while(choice < 0 || choice >= nTot || ToDiscard[choice] == null);
-            if(choice < handSize)
-                ToDiscard[choice].discard(DiscardPile);
-            else
-                ToDiscard[choice - handSize].discard(DiscardPile);
-            ToDiscard[choice] = null;
+        do{
+            choice = Utils.nextInt(input, this + ": <Insert 1 to discard your cards automatically or 0 to choose the order");
+        }while(choice != 0 && choice != 1);
+        if(choice == 1)
+            autoDiscardAll(DiscardPile);
+        else{
+            int handSize = Hand.size();
+            int nTot = handSize + ActiveCards.size();
+            if(isWeapon())
+                nTot++;
+            PlayingCard ToDiscard[] = new PlayingCard[nTot];
+            int i = 0;
+            for (PlayingCard card : Hand)
+                ToDiscard[i++] = card;
+            for (PlayingCard card : ActiveCards)
+                ToDiscard[i++] = card;
+            if(isWeapon())
+                ToDiscard[i] = weapon;
+            i = 1;
+            for (PlayingCard card : ToDiscard)
+                System.out.println((i++) + ") " + card);
+            if(nTot > 0)
+                System.out.println(this + ": <Choose how to discard your cards ");
+            
+            for(i = 0; i < nTot; i++){
+                do{
+                    choice = Utils.nextInt(input, "") - 1;
+                }while(choice < 0 || choice >= nTot || ToDiscard[choice] == null);
+                if(choice < handSize)
+                    ToDiscard[choice].discard(DiscardPile);
+                else
+                    ToDiscard[choice - handSize].discard(DiscardPile);
+                ToDiscard[choice] = null;
+            }
+            Hand = null;
+            ActiveCards = null;
         }
+        setWeapon(null);
         if(lives > 0)
             suzyLafayette(Deck, DiscardPile);
+    }
+
+    public void autoDiscardAll(LinkedList<PlayingCard> DiscardPile){
+        while(!Hand.isEmpty())
+            Hand.pop().discard(DiscardPile);
+        while(!ActiveCards.isEmpty())
+            ActiveCards.pop().discard(DiscardPile);
+        getWeapon().discard(DiscardPile);
     }
     
     public void readHand(){
