@@ -3,6 +3,7 @@ package match;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+import lib.*;
 import cards.*;
 import characters.Characters;
 import player.Player;
@@ -78,14 +79,12 @@ public class Match {
                 case "Jesse Jones":
                     sidKetchum(turnPlayer + " can activate his ability", DiscardPile);
                     do{
-                        System.out.println(turnPlayer + ": <Choose 1 to activate your character's ability or 0 to ignore");
-                        choice = nextInt();
+                        choice = Utils.nextInt(input, turnPlayer + ": <Choose 1 to activate your character's ability or 0 to ignore");
                     }while(choice < 0 || choice > 1);
                     if(choice == 1){
                         do{
-                            System.out.println(turnPlayer + ": <Choose the player you want to draw from or 0 to cancel");
                             printNHands(0);
-                            choice = nextInt() - 1;
+                            choice = Utils.nextInt(input, turnPlayer + ": <Choose the player you want to draw from or 0 to cancel") - 1;
                         }while(choice < -1 || choice >= nPlayers);
                         if(choice == -1)
                             break;
@@ -97,7 +96,7 @@ public class Match {
                 case "Kit Carlson":
                     sidKetchum(turnPlayer + " can activate his ability", DiscardPile);
                     turnPlayer.kitCarlson(Deck, DiscardPile, input);
-                    drawn = 2;
+                    //drawn = 2;    useless but attention at the next if
                     break;
                 case "Pedro Ramirez":
                     readDiscard(DiscardPile);
@@ -105,29 +104,28 @@ public class Match {
                     if(turnPlayer.pedroRamirez(DiscardPile, input))
                         drawn++;
             }
-            sidKetchum(turnPlayer + " is going to draw", DiscardPile);
-            turnPlayer.firstPhase(Deck, DiscardPile, drawn, input);
+            if(turnPlayer.getCharacter().getName() == "Kit Carlson"){
+                sidKetchum(turnPlayer + " is going to draw", DiscardPile);
+                turnPlayer.firstPhase(Deck, DiscardPile, drawn, input);
+            }
             boolean goon = true, bang = false;
             Distances = distances();
             sidKetchum(turnPlayer + " is starting is second phase", DiscardPile);
             turnPlayer.readHand();
             while(goon){
-                System.out.println(turnPlayer + ": <Choose an option:\n1: Print remaining lives.\n2: Print characters.\n3: Print the Sheriff.\n4: Number of cards in other's hand.\n5: Print your hand.\n6: Print your role.\n7: Print active cards.\n8: Print ranges\n9: Print distances.\n10: Print first card in the discard pile.\n11: Print remaining cards in the deck\n12: Play a card.\n13: Terminate your turn.");
-                choice = nextInt();
+                choice = Utils.nextInt(input, turnPlayer + ": <Choose an option:\n1: Print remaining lives.\n2: Print characters.\n3: Print the Sheriff.\n4: Number of cards in other's hand.\n5: Print your hand.\n6: Print your role.\n7: Print active cards.\n8: Print ranges\n9: Print distances.\n10: Print first card in the discard pile.\n11: Print remaining cards in the deck\n12: Play a card.\n13: Terminate your turn.");
                 switch (choice) {
                     case 1:
                         do{
-                            System.out.println(turnPlayer + ": <Choose player's id to check his lives or 0 to check everyones'");
                             printActivePlayers();
-                            choice = nextInt();
+                            choice = Utils.nextInt(input, turnPlayer + ": <Choose player's id to check his lives or 0 to check everyones'");
                         }while(choice < 0 || choice > nPlayers);
                         printLives(choice);
                         break;
                     case 2:
                         do{
-                            System.out.println(turnPlayer + ": <Choose player's id to check his character or 0 to check everyone's");
                             printActivePlayers();
-                            choice = nextInt();
+                            choice = Utils.nextInt(input, turnPlayer + ": <Choose player's id to check his character or 0 to check everyone's");
                         }while(choice < 0 || choice > nPlayers);
                         printCharacters(choice);
                         break;
@@ -136,9 +134,8 @@ public class Match {
                         break;
                     case 4:
                         do{
-                            System.out.println(turnPlayer + ": <Choose player's id to check the number of cards in his hands or 0 to check everyone's");
                             printActivePlayers();
-                            choice = nextInt();
+                            choice = Utils.nextInt(input, turnPlayer + ": <Choose player's id to check the number of cards in his hands or 0 to check everyone's");
                         }while(choice < 0 || choice > nPlayers);
                         printNHands(choice);
                         break;
@@ -150,25 +147,22 @@ public class Match {
                         break;
                     case 7:
                         do{
-                            System.out.println(turnPlayer + ": <Choose player's id to check his active cards or 0 to check everyones'");
                             printActivePlayers();
-                            choice = nextInt();
+                            choice = Utils.nextInt(input, turnPlayer + ": <Choose player's id to check his active cards or 0 to check everyones'");
                         }while(choice < 0 || choice > nPlayers);
                         printActiveCards(choice);
                         break;
                     case 8:
                         do{
-                            System.out.println(turnPlayer + ": <Choose player's id to check his active range or 0 to check everyones'");
                             printActivePlayers();
-                            choice = nextInt();
+                            choice = Utils.nextInt(input, turnPlayer + ": <Choose player's id to check his active range or 0 to check everyones'");
                         }while(choice < 0 || choice > nPlayers);
                         printRange(choice);
                         break;
                     case 9:
                         do{
-                            System.out.println(turnPlayer + ": <Choose player's id to check his actual distance from you or 0 to check everyone's");
                             printActivePlayers();
-                            choice = nextInt();
+                            choice = Utils.nextInt(input, turnPlayer + ": <Choose player's id to check his actual distance from you or 0 to check everyone's");
                         }while(choice < 0 || choice > nPlayers);
                         printDistances(choice);
                         break;
@@ -183,8 +177,7 @@ public class Match {
                         if(turnPlayer.getHand().isEmpty())
                             break;
                         do{
-                            System.out.println(turnPlayer + ": <Choose the card you want to play or 0 to cancel");
-                            choice = nextInt() - 1;
+                            choice = Utils.nextInt(input, turnPlayer + ": <Choose the card you want to play or 0 to cancel") - 1;
                         }while(choice < -1 || choice >= turnPlayer.getHand().size());
                         if(choice == -1)
                             break;
@@ -197,9 +190,8 @@ public class Match {
                                 case "Bang!":
                                     possible = false;
                                     do{
-                                        System.out.println(turnPlayer + ": <Choose the player you want to shoot or 0 to cancel");
                                         printDistances(-1);
-                                        choice = nextInt() - 1;
+                                        choice = Utils.nextInt(input, turnPlayer + ": <Choose the player you want to shoot or 0 to cancel") - 1;
                                         if(choice >= 0 && choice < nPlayers){
                                             possible = turnPlayer.getRange() >= Distances[choice];
                                             if(!possible)
@@ -228,9 +220,8 @@ public class Match {
                                     break;
                                 case "Cat Balou":
                                     do{
-                                        System.out.println(turnPlayer + ": <Choose the player you want to discard a card from or 0 to cancel");
                                         printActivePlayers();
-                                        choice = nextInt() - 1;
+                                        choice = Utils.nextInt(input, turnPlayer + ": <Choose the player you want to discard a card from or 0 to cancel") - 1;
                                     }while(choice < -1 || choice >= nPlayers);
                                     if(choice == -1)
                                         break;
@@ -243,7 +234,7 @@ public class Match {
                                             System.out.println((i++) + " if you want to discard his " + activeCard.getName());
                                         if(Players[target].isWeapon())
                                             System.out.println(i + " if you want to discard his weapon");
-                                        choice = nextInt();
+                                        choice = Utils.nextInt(input, "");
                                         if(choice == 0)
                                             done = true;
                                         else if(choice == 1){
@@ -283,9 +274,8 @@ public class Match {
                                     break;
                                 case "Panic!":
                                     do{
-                                        System.out.println(turnPlayer + ": <Choose the player you want to draw from or 0 to cancel");
                                         printDistances(-1);
-                                        choice = nextInt() - 1;
+                                        choice = Utils.nextInt(input, turnPlayer + ": <Choose the player you want to draw from or 0 to cancel") - 1;
                                     }while(choice < -1 || choice >= nPlayers || (choice != -1 && Distances[choice] > 1));
                                     if(choice == -1)
                                         break;
@@ -298,7 +288,7 @@ public class Match {
                                             System.out.println((i++) + " if you want to get his " + activeCard.getName());
                                         if(Players[target].isWeapon())
                                             System.out.println(i + " if you want to get his weapon");
-                                        choice = nextInt();
+                                        choice = Utils.nextInt(input, "");
                                         if(choice == 0)
                                             done = true;
                                         else if(choice == 1){
@@ -353,9 +343,8 @@ public class Match {
                                     break;
                                 case "Jail":
                                     do{
-                                        System.out.println(turnPlayer + " <Choose the player you want to put in jail or 0 to cancel");
                                         printActivePlayers();
-                                        choice = nextInt() - 1;
+                                        choice = Utils.nextInt(input, turnPlayer + " <Choose the player you want to put in jail or 0 to cancel") - 1;
                                         if(choice == sheriffIx)
                                             System.out.println("Impossible to put the Sheriff in jail");                                        
                                     }while(choice < -1 || choice >= nPlayers || choice == sheriffIx);
@@ -392,9 +381,8 @@ public class Match {
                                     break;
                                 case "Duel":
                                     do{
-                                        System.out.println(turnPlayer + " <Choose a player you want to duel or 0 to cancel");
                                         printActivePlayers();
-                                        choice = nextInt() - 1;
+                                        choice = Utils.nextInt(input, turnPlayer + " <Choose a player you want to duel or 0 to cancel") - 1;
                                     }while(choice < -1 || choice >= nPlayers);
                                     if(choice != -1){
                                         turnPlayer.discard(card, DiscardPile);
@@ -815,7 +803,7 @@ public class Match {
             if(defender.getCharacter().getName() == "Calamity Janet")
                 System.out.print(" or a Bang!");
             System.out.println(" or 0 to lose a life");
-            choice = nextInt() - 1;
+            choice = Utils.nextInt(input, "") - 1;
             if(choice >= 0 && choice < defender.getHand().size()){
                 miss = defender.getHand().get(choice).getName() == "Missed!";
                 if(defender.getCharacter().getName() == "Calamity Janet")
@@ -842,7 +830,7 @@ public class Match {
                 if(dueller.getCharacter().getName() == "Calamity Janet")
                     System.out.print(" or a Missed!");
                 System.out.println(" to go on with the duel or 0 to lose a life");
-                choice = nextInt() - 1;
+                choice = Utils.nextInt(input, "") - 1;
                 if(choice >= 0 && choice < dueller.getHand().size()){
                     bang = dueller.getHand().get(choice).getName() == "Bang!";
                     if(dueller.getCharacter().getName() == "Calamity Janet")
@@ -895,7 +883,7 @@ public class Match {
                 if(target.getCharacter().getName() == "Calamity Janet")
                     System.out.print(" or a Missed!");
                 System.out.println(" or 0 to lose a life");
-                choice = nextInt() - 1;
+                choice = Utils.nextInt(input, "") - 1;
                 if(choice >= 0 && choice < target.getHand().size()){
                     bang = target.getHand().get(choice).getName() == "Bang!";
                     if(target.getCharacter().getName() == "Calamity Janet")
@@ -934,8 +922,7 @@ public class Match {
         if(defender.isActiveCard("Barrel")){
             int choice;
             do{
-                System.out.println(defender + " <Choose 1 to activate your Barrel or 0 to ignore");
-                choice = nextInt();
+                choice = Utils.nextInt(input, defender + " <Choose 1 to activate your Barrel or 0 to ignore");
             }while(choice < 0 || choice > 1);
             if(choice == 1){
                 boolean res = defender.drawHearts(Deck, DiscardPile, input);
@@ -1116,7 +1103,7 @@ public class Match {
                 System.out.println("Cards available in the General Store:");
                 for(int j = 0; j < storeSize; j++)
                     System.out.println((j+1) + ") " + generalStore.get(j));
-                choice = nextInt() - 1;
+                choice = Utils.nextInt(input, "") - 1;
             }while(choice < 0 || choice >= storeSize);
             Players[i].getHand().add(generalStore.remove(choice));
         }
@@ -1189,12 +1176,10 @@ public class Match {
                 System.out.println((i+1) +") " + tmp[i]);
             }
             do{
-                System.out.println("Lucky Duke: <Choose which one you want to use");
-                choice1 = nextInt() - 1;
+                choice1 = Utils.nextInt(input, "Lucky Duke: <Choose which one you want to use") - 1;
             }while (choice1 < 0 || choice1 > 1);
             do{
-                System.out.println("Lucky Duke: <Choose which one you want to discard before");
-                choice2= nextInt() - 1;
+                choice2= Utils.nextInt(input, "Lucky Duke: <Choose which one you want to discard before") - 1;
             }while (choice2 < 0 || choice2 > 1);
             if(choice2 == 0){
                 tmp[0].discard(DiscardPile);
@@ -1253,13 +1238,4 @@ public class Match {
         }
     }
 
-    private int nextInt(){
-        do{
-            try {
-                return input.nextInt();
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-        }while(true);
-    }
 }
