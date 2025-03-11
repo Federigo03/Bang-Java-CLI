@@ -33,6 +33,19 @@ public class PlayingCard {
         return this.rank;
     }
 
+    public String getStringRank(){
+        switch (this.rank) {
+            case 11:
+                return "J";
+            case 12:
+                return "Q";
+            case 13:
+                return "K";
+            default:
+                return ((Integer)this.rank).toString();
+        }
+    }
+
     public void setRank(int rank) {
         this.rank = rank;
     }
@@ -43,6 +56,6 @@ public class PlayingCard {
     
     @Override
     public String toString() {
-        return getName() + " (" + getRank() + getSuit() + ")";
+        return getName() + " (" + getStringRank() + getSuit() + ")";
     }
 }

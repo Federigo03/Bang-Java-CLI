@@ -190,7 +190,7 @@ public class Player {
                 if(Deck.isEmpty())
                     Deck = Match.discardIntoDeck(DiscardPile);
                 System.out.println(this + " revealed " + Deck.getFirst());
-                if(Deck.getFirst().getSuit() == 'H' || Deck.getFirst().getSuit() == 'D')
+                if(Deck.getFirst().getSuit() == '♥' || Deck.getFirst().getSuit() == '♦')
                     this.draw(Deck, DiscardPile);
             }
             this.draw(Deck, DiscardPile);
@@ -282,7 +282,7 @@ public class Player {
                 tmp[1].discard(DiscardPile);
                 tmp[0].discard(DiscardPile);
             }
-            if(tmp[choice1].getSuit() == 'H')
+            if(tmp[choice1].getSuit() == '♥')
                 return true;
             return false;
         }
@@ -291,7 +291,7 @@ public class Player {
                 Deck.addAll(Match.discardIntoDeck(DiscardPile));
             Deck.removeFirst().discard(DiscardPile);
             System.out.println(DiscardPile.getFirst() + " \"drawn\" for effect");
-            if(DiscardPile.getFirst().getSuit() == 'H')
+            if(DiscardPile.getFirst().getSuit() == '♥')
                 return true;
             return false;
         }
