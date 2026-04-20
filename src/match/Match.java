@@ -1,7 +1,6 @@
 package match;
 
 import java.util.LinkedList;
-import java.util.Scanner;
 
 import lib.*;
 import cards.*;
@@ -17,7 +16,6 @@ public class Match {
     private Player turnPlayer;
     private int Distances[];
     private LinkedList<Player> Winners = new LinkedList<Player>();
-    final private Scanner input = new Scanner(System.in);
 
     public Match(int nStartPlayers, boolean inputName){
         final int nStartingPlayers = nStartPlayers;
@@ -33,7 +31,7 @@ public class Match {
         Players = new Player[nStartingPlayers];
         if(inputName)
             for(int i = 0; i < nStartingPlayers; i++)
-                Players[i] = new Player(Roles[i], Characters[i], input, Deck);
+                Players[i] = new Player(Roles[i], Characters[i], Deck);
         else{
             final String[] Names = new String[nPlayers];
             for(int i = 0; i < nPlayers; i++)
@@ -53,7 +51,8 @@ public class Match {
             System.out.println(turnPlayer + "'s turn:");
             System.out.println("Cards remaining: " + Deck.size());
             turnPlayer.readHand();
-            int choice, drawn = 0;
+            int choice;
+            int drawn = 0;
             if(turnPlayer.isActiveCard("Dynamite"))
                 if(dynamite(Deck, DiscardPile)){
                     if(endMatch(nStartingPlayers, new int[]{turnPlayerIx})){
@@ -65,7 +64,7 @@ public class Match {
                 }
             if(turnPlayer.isActiveCard("Jail")){
                 sidKetchum(turnPlayer + " drawing for Jail", DiscardPile);
-                boolean res = turnPlayer.drawHearts(Deck, DiscardPile, input);
+                boolean res = turnPlayer.drawHearts(Deck, DiscardPile);
                 turnPlayer.removeActiveCard("Jail").discard(DiscardPile);
                 if(!res){
                     if(turnPlayerIx == nPlayers - 1)
@@ -79,12 +78,12 @@ public class Match {
                 case "Jesse Jones":
                     sidKetchum(turnPlayer + " can activate his ability", DiscardPile);
                     do{
-                        choice = Utils.nextInt(input, turnPlayer + ": <Choose 1 to activate your character's ability or 0 to ignore");
+                        choice = Utils.nextInt(turnPlayer + ": <Choose 1 to activate your character's ability or 0 to ignore");
                     }while(choice < 0 || choice > 1);
                     if(choice == 1){
                         do{
                             printNHands(0);
-                            choice = Utils.nextInt(input, turnPlayer + ": <Choose the player you want to draw from or 0 to cancel") - 1;
+                            choice = Utils.nextInt(turnPlayer + ": <Choose the player you want to draw from or 0 to cancel") - 1;
                         }while(choice < -1 || choice >= nPlayers);
                         if(choice == -1)
                             break;
@@ -95,37 +94,37 @@ public class Match {
                     break;
                 case "Kit Carlson":
                     sidKetchum(turnPlayer + " can activate his ability", DiscardPile);
-                    turnPlayer.kitCarlson(Deck, DiscardPile, input);
+                    turnPlayer.kitCarlson(Deck, DiscardPile);
                     //drawn = 2;    useless but attention at the next if
                     break;
                 case "Pedro Ramirez":
                     readDiscard(DiscardPile);
                     sidKetchum(turnPlayer + " can activate his ability", DiscardPile);
-                    if(turnPlayer.pedroRamirez(DiscardPile, input))
+                    if(turnPlayer.pedroRamirez(DiscardPile))
                         drawn++;
             }
             if(turnPlayer.getCharacter().getName() == "Kit Carlson"){
                 sidKetchum(turnPlayer + " is going to draw", DiscardPile);
-                turnPlayer.firstPhase(Deck, DiscardPile, drawn, input);
+                turnPlayer.firstPhase(Deck, DiscardPile, drawn);
             }
             boolean goon = true, bang = false;
             Distances = distances();
             sidKetchum(turnPlayer + " is starting is second phase", DiscardPile);
             turnPlayer.readHand();
             while(goon){
-                choice = Utils.nextInt(input, turnPlayer + ": <Choose an option:\n1: Print remaining lives.\n2: Print characters.\n3: Print the Sheriff.\n4: Number of cards in other's hand.\n5: Print your hand.\n6: Print your role.\n7: Print active cards.\n8: Print ranges\n9: Print distances.\n10: Print first card in the discard pile.\n11: Print remaining cards in the deck\n12: Play a card.\n13: Terminate your turn.");
+                choice = Utils.nextInt(turnPlayer + ": <Choose an option:\n1: Print remaining lives.\n2: Print characters.\n3: Print the Sheriff.\n4: Number of cards in other's hand.\n5: Print your hand.\n6: Print your role.\n7: Print active cards.\n8: Print ranges\n9: Print distances.\n10: Print first card in the discard pile.\n11: Print remaining cards in the deck\n12: Play a card.\n13: Terminate your turn.");
                 switch (choice) {
                     case 1:
                         do{
                             printActivePlayers();
-                            choice = Utils.nextInt(input, turnPlayer + ": <Choose player's id to check his lives or 0 to check everyones'");
+                            choice = Utils.nextInt(turnPlayer + ": <Choose player's id to check his lives or 0 to check everyones'");
                         }while(choice < 0 || choice > nPlayers);
                         printLives(choice);
                         break;
                     case 2:
                         do{
                             printActivePlayers();
-                            choice = Utils.nextInt(input, turnPlayer + ": <Choose player's id to check his character or 0 to check everyone's");
+                            choice = Utils.nextInt(turnPlayer + ": <Choose player's id to check his character or 0 to check everyone's");
                         }while(choice < 0 || choice > nPlayers);
                         printCharacters(choice);
                         break;
@@ -135,7 +134,7 @@ public class Match {
                     case 4:
                         do{
                             printActivePlayers();
-                            choice = Utils.nextInt(input, turnPlayer + ": <Choose player's id to check the number of cards in his hands or 0 to check everyone's");
+                            choice = Utils.nextInt(turnPlayer + ": <Choose player's id to check the number of cards in his hands or 0 to check everyone's");
                         }while(choice < 0 || choice > nPlayers);
                         printNHands(choice);
                         break;
@@ -148,21 +147,21 @@ public class Match {
                     case 7:
                         do{
                             printActivePlayers();
-                            choice = Utils.nextInt(input, turnPlayer + ": <Choose player's id to check his active cards or 0 to check everyones'");
+                            choice = Utils.nextInt(turnPlayer + ": <Choose player's id to check his active cards or 0 to check everyones'");
                         }while(choice < 0 || choice > nPlayers);
                         printActiveCards(choice);
                         break;
                     case 8:
                         do{
                             printActivePlayers();
-                            choice = Utils.nextInt(input, turnPlayer + ": <Choose player's id to check his active range or 0 to check everyones'");
+                            choice = Utils.nextInt(turnPlayer + ": <Choose player's id to check his active range or 0 to check everyones'");
                         }while(choice < 0 || choice > nPlayers);
                         printRange(choice);
                         break;
                     case 9:
                         do{
                             printActivePlayers();
-                            choice = Utils.nextInt(input, turnPlayer + ": <Choose player's id to check his actual distance from you or 0 to check everyone's");
+                            choice = Utils.nextInt(turnPlayer + ": <Choose player's id to check his actual distance from you or 0 to check everyone's");
                         }while(choice < 0 || choice > nPlayers);
                         printDistances(choice);
                         break;
@@ -177,7 +176,7 @@ public class Match {
                         if(turnPlayer.getHand().isEmpty())
                             break;
                         do{
-                            choice = Utils.nextInt(input, turnPlayer + ": <Choose the card you want to play or 0 to cancel") - 1;
+                            choice = Utils.nextInt(turnPlayer + ": <Choose the card you want to play or 0 to cancel") - 1;
                         }while(choice < -1 || choice >= turnPlayer.getHand().size());
                         if(choice == -1)
                             break;
@@ -191,7 +190,7 @@ public class Match {
                                     possible = false;
                                     do{
                                         printDistances(-1);
-                                        choice = Utils.nextInt(input, turnPlayer + ": <Choose the player you want to shoot or 0 to cancel") - 1;
+                                        choice = Utils.nextInt(turnPlayer + ": <Choose the player you want to shoot or 0 to cancel") - 1;
                                         if(choice >= 0 && choice < nPlayers){
                                             possible = turnPlayer.getRange() >= Distances[choice];
                                             if(!possible)
@@ -221,7 +220,7 @@ public class Match {
                                 case "Cat Balou":
                                     do{
                                         printActivePlayers();
-                                        choice = Utils.nextInt(input, turnPlayer + ": <Choose the player you want to discard a card from or 0 to cancel") - 1;
+                                        choice = Utils.nextInt(turnPlayer + ": <Choose the player you want to discard a card from or 0 to cancel") - 1;
                                     }while(choice < -1 || choice >= nPlayers);
                                     if(choice == -1)
                                         break;
@@ -234,7 +233,7 @@ public class Match {
                                             System.out.println((i++) + " if you want to discard his " + activeCard.getName());
                                         if(Players[target].isWeapon())
                                             System.out.println(i + " if you want to discard his weapon");
-                                        choice = Utils.nextInt(input, "");
+                                        choice = Utils.nextInt();
                                         if(choice == 0)
                                             done = true;
                                         else if(choice == 1){
@@ -275,7 +274,7 @@ public class Match {
                                 case "Panic!":
                                     do{
                                         printDistances(-1);
-                                        choice = Utils.nextInt(input, turnPlayer + ": <Choose the player you want to draw from or 0 to cancel") - 1;
+                                        choice = Utils.nextInt(turnPlayer + ": <Choose the player you want to draw from or 0 to cancel") - 1;
                                     }while(choice < -1 || choice >= nPlayers || (choice != -1 && Distances[choice] > 1));
                                     if(choice == -1)
                                         break;
@@ -288,7 +287,7 @@ public class Match {
                                             System.out.println((i++) + " if you want to get his " + activeCard.getName());
                                         if(Players[target].isWeapon())
                                             System.out.println(i + " if you want to get his weapon");
-                                        choice = Utils.nextInt(input, "");
+                                        choice = Utils.nextInt();
                                         if(choice == 0)
                                             done = true;
                                         else if(choice == 1){
@@ -344,7 +343,7 @@ public class Match {
                                 case "Jail":
                                     do{
                                         printActivePlayers();
-                                        choice = Utils.nextInt(input, turnPlayer + " <Choose the player you want to put in jail or 0 to cancel") - 1;
+                                        choice = Utils.nextInt(turnPlayer + " <Choose the player you want to put in jail or 0 to cancel") - 1;
                                         if(choice == sheriffIx)
                                             System.out.println("Impossible to put the Sheriff in jail");                                        
                                     }while(choice < -1 || choice >= nPlayers || choice == sheriffIx);
@@ -382,7 +381,7 @@ public class Match {
                                 case "Duel":
                                     do{
                                         printActivePlayers();
-                                        choice = Utils.nextInt(input, turnPlayer + " <Choose a player you want to duel or 0 to cancel") - 1;
+                                        choice = Utils.nextInt(turnPlayer + " <Choose a player you want to duel or 0 to cancel") - 1;
                                     }while(choice < -1 || choice >= nPlayers);
                                     if(choice != -1){
                                         turnPlayer.discard(card, DiscardPile);
@@ -441,7 +440,7 @@ public class Match {
                         System.out.println("Unavailable option.");
                 }
             }
-            turnPlayer.thirdPhase(DiscardPile, input);
+            turnPlayer.thirdPhase(DiscardPile);
             if(turnPlayerIx == nPlayers - 1)
                 turnPlayerIx = 0;
             else
@@ -642,7 +641,7 @@ public class Match {
                 System.out.println(message);
             boolean c;
             do{
-                c = Players[sidKetchumIx].sidKetchum(DiscardPile, input);
+                c = Players[sidKetchumIx].sidKetchum(DiscardPile);
             }while(c);
         }
     }
@@ -761,7 +760,7 @@ public class Match {
         if(barrelEffect(Players[defender], Deck, DiscardPile))
             shot--;
         if(shot > 0)
-            if(Players[defender].jourdonnais(input, Deck, DiscardPile))
+            if(Players[defender].jourdonnais(Deck, DiscardPile))
                 shot--;
         for(int i = 0; i < shot; i++){
             if(!missed(Players[defender], DiscardPile)){
@@ -803,7 +802,7 @@ public class Match {
             if(defender.getCharacter().getName() == "Calamity Janet")
                 System.out.print(" or a Bang!");
             System.out.println(" or 0 to lose a life");
-            choice = Utils.nextInt(input, "") - 1;
+            choice = Utils.nextInt() - 1;
             if(choice >= 0 && choice < defender.getHand().size()){
                 miss = defender.getHand().get(choice).getName() == "Missed!";
                 if(defender.getCharacter().getName() == "Calamity Janet")
@@ -830,7 +829,7 @@ public class Match {
                 if(dueller.getCharacter().getName() == "Calamity Janet")
                     System.out.print(" or a Missed!");
                 System.out.println(" to go on with the duel or 0 to lose a life");
-                choice = Utils.nextInt(input, "") - 1;
+                choice = Utils.nextInt() - 1;
                 if(choice >= 0 && choice < dueller.getHand().size()){
                     bang = dueller.getHand().get(choice).getName() == "Bang!";
                     if(dueller.getCharacter().getName() == "Calamity Janet")
@@ -862,7 +861,7 @@ public class Match {
                 i = 0;
             if(barrelEffect(Players[i], Deck, DiscardPile))
                 continue;
-            if(Players[i].jourdonnais(input, Deck, DiscardPile))
+            if(Players[i].jourdonnais(Deck, DiscardPile))
                 continue;
             if(!missed(Players[i], DiscardPile))
                 Hit.add(i);
@@ -883,7 +882,7 @@ public class Match {
                 if(target.getCharacter().getName() == "Calamity Janet")
                     System.out.print(" or a Missed!");
                 System.out.println(" or 0 to lose a life");
-                choice = Utils.nextInt(input, "") - 1;
+                choice = Utils.nextInt() - 1;
                 if(choice >= 0 && choice < target.getHand().size()){
                     bang = target.getHand().get(choice).getName() == "Bang!";
                     if(target.getCharacter().getName() == "Calamity Janet")
@@ -904,7 +903,7 @@ public class Match {
         LinkedList<Integer> Dead = new LinkedList<Integer>();
         for (int i : Hit) {
             if(Players[i].getLives() == 1){
-                if(!Players[i].savingBeer(input, DiscardPile, nPlayers == 2)){
+                if(!Players[i].savingBeer(DiscardPile, nPlayers == 2)){
                     Players[i].subLife();
                     Dead.add(i);
                 }
@@ -922,10 +921,10 @@ public class Match {
         if(defender.isActiveCard("Barrel")){
             int choice;
             do{
-                choice = Utils.nextInt(input, defender + " <Choose 1 to activate your Barrel or 0 to ignore");
+                choice = Utils.nextInt(defender + " <Choose 1 to activate your Barrel or 0 to ignore");
             }while(choice < 0 || choice > 1);
             if(choice == 1){
-                boolean res = defender.drawHearts(Deck, DiscardPile, input);
+                boolean res = defender.drawHearts(Deck, DiscardPile);
                 if(res){
                     System.out.println("Missed!");
                     return true;
@@ -938,7 +937,7 @@ public class Match {
     private boolean subLife(int wounded, int attacker, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
         //not damage from dynamite
         if(Players[wounded].getLives() == 1){
-            if(!Players[wounded].savingBeer(input, DiscardPile, nPlayers == 2)){
+            if(!Players[wounded].savingBeer(DiscardPile, nPlayers == 2)){
                 Players[wounded].subLife();
                 return true;
             }
@@ -1058,7 +1057,7 @@ public class Match {
 
     private void penaltiesAndRewards(Player killer, Player killed, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
         if(killer.getRole() == "Sheriff" && killed.getRole() == "Deputy")
-            killer.discardAll(input, DiscardPile, Deck);
+            killer.discardAll(DiscardPile, Deck);
         else if(killed.getRole() == "Outlaw")
             for(int i = 0; i < 3; i++)
                 killer.draw(Deck, DiscardPile);
@@ -1075,7 +1074,7 @@ public class Match {
                 Players[vulture].getHand().add(Players[killed].removeWeapon());
         }
         else
-            Players[killed].discardAll(input, DiscardPile, Deck);
+            Players[killed].discardAll(DiscardPile, Deck);
     }
     
     private void panic(int robber, int robbed, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
@@ -1103,7 +1102,7 @@ public class Match {
                 System.out.println("Cards available in the General Store:");
                 for(int j = 0; j < storeSize; j++)
                     System.out.println((j+1) + ") " + generalStore.get(j));
-                choice = Utils.nextInt(input, "") - 1;
+                choice = Utils.nextInt() - 1;
             }while(choice < 0 || choice >= storeSize);
             Players[i].getHand().add(generalStore.remove(choice));
         }
@@ -1131,18 +1130,15 @@ public class Match {
             if(Living.size() == 1 && Players[Living.getFirst()].getRole() == "Renegade"){
                 System.out.println(Players[Living.getFirst()] + "(" + Players[Living.getFirst()].getName() + ") has won the match as a Renegade");
                 Winners.add(Players[Living.getFirst()]);
-                input.close();
                 return true;
             }
             outlawsWin(startingNPlayers);
-            input.close();
             return true;
         }
         for (int i : Living)
             if(Players[i].getRole() != "Sheriff" && Players[i].getRole() != "Deputy")
                 return false;
         sheriffWin(startingNPlayers);
-        input.close();
         return true;
     }
 
@@ -1176,10 +1172,10 @@ public class Match {
                 System.out.println((i+1) +") " + tmp[i]);
             }
             do{
-                choice1 = Utils.nextInt(input, "Lucky Duke: <Choose which one you want to use") - 1;
+                choice1 = Utils.nextInt("Lucky Duke: <Choose which one you want to use") - 1;
             }while (choice1 < 0 || choice1 > 1);
             do{
-                choice2= Utils.nextInt(input, "Lucky Duke: <Choose which one you want to discard before") - 1;
+                choice2= Utils.nextInt("Lucky Duke: <Choose which one you want to discard before") - 1;
             }while (choice2 < 0 || choice2 > 1);
             if(choice2 == 0){
                 tmp[0].discard(DiscardPile);
@@ -1190,7 +1186,7 @@ public class Match {
                 tmp[0].discard(DiscardPile);
             }
             if(tmp[choice1].getSuit() == '♠' && tmp[choice1].getRank() >= 2 && tmp[choice1].getRank() <= 9)
-                return turnPlayer.explosion(Deck, DiscardPile, input, nPlayers == 2);
+                return turnPlayer.explosion(Deck, DiscardPile, nPlayers == 2);
         }
         else{
             if(Deck.isEmpty())
@@ -1198,7 +1194,7 @@ public class Match {
             Deck.removeFirst().discard(DiscardPile);
             System.out.println(DiscardPile.getFirst() + " drawn for effect of dynamite");
             if(DiscardPile.getFirst().getSuit() == '♠' && DiscardPile.getFirst().getRank() >= 2 && DiscardPile.getFirst().getRank() <= 9)
-                return turnPlayer.explosion(Deck, DiscardPile, input, nPlayers == 2);
+                return turnPlayer.explosion(Deck, DiscardPile, nPlayers == 2);
         }
         for(int i = turnPlayerIx + 1; i != turnPlayerIx; i++){
             if(i == nPlayers)

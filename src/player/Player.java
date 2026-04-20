@@ -1,7 +1,6 @@
 package player;
 
 import java.util.LinkedList;
-import java.util.Scanner;
 
 import lib.*;
 import cards.*;
@@ -30,9 +29,8 @@ public class Player {
         startingDraw(Deck);
     }
 
-    public Player(String role, Characters character, Scanner input, LinkedList<PlayingCard> Deck) {
-        System.out.println("<Insert your name");
-        setName(input.nextLine());
+    public Player(String role, Characters character, LinkedList<PlayingCard> Deck) {
+        setName(Utils.nextLine("<Insert your name"));
         setRole(role);
         setCharacter(character);
         System.out.println(name + " is " + character.getName());
@@ -184,7 +182,7 @@ public class Player {
         }
     }
     
-    public void firstPhase(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile, int drawn, Scanner input){
+    public void firstPhase(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile, int drawn){
         for(; drawn < 2; drawn++){
             if(character.getName() == "Black Jack" && drawn == 1){
                 if(Deck.isEmpty())
@@ -204,7 +202,7 @@ public class Player {
         Hand.add(Deck.removeFirst());
     }
 
-    public void discard(int card, LinkedList<PlayingCard> DiscardPile){
+    public void     discard(int card, LinkedList<PlayingCard> DiscardPile){
         Hand.remove(card).discard(DiscardPile);
     }
 
@@ -236,12 +234,12 @@ public class Player {
         return b;
     }
 
-    public boolean explosion(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile, Scanner input, boolean twoPlayers){
+    public boolean explosion(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile, boolean twoPlayers){
         removeActiveCard("Dynamite").discard(DiscardPile);
         System.out.println("Dynamite exploded: " + this + " is going to lose 3 lives");
         for(int i = 0; i < 3; i++){
             if(lives == 1){
-                if(!savingBeer(input, DiscardPile, twoPlayers)){
+                if(!savingBeer(DiscardPile, twoPlayers)){
                     subLife();
                     return true;
                 }
@@ -254,11 +252,11 @@ public class Player {
                 draw(Deck, DiscardPile);
         suzyLafayette(Deck, DiscardPile);
         if(character.getName() == "Sid Ketchum")
-            sidKetchum(DiscardPile, input);
+            sidKetchum(DiscardPile);
         return false;
     }
     
-    public boolean drawHearts(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile, Scanner input){
+    public boolean drawHearts(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
         if(character.getName() == "Lucky Duke"){
             PlayingCard[] tmp = new PlayingCard[2];
             int choice1, choice2;
@@ -269,10 +267,10 @@ public class Player {
                 System.out.println((i+1) + ") " + tmp[i]);
                 }
             do{
-                choice1 = Utils.nextInt(input, this + ": <Choose which one you want to use") - 1;
+                choice1 = Utils.nextInt(this + ": <Choose which one you want to use") - 1;
             }while (choice1 < 0 || choice1 > 1);
             do{
-                choice2= Utils.nextInt(input, this + ": <Choose which one you want to discard before") - 1;
+                choice2= Utils.nextInt(this + ": <Choose which one you want to discard before") - 1;
             }while (choice2 < 0 || choice2 > 1);
             if(choice2 == 0){
                 tmp[0].discard(DiscardPile);
@@ -297,7 +295,7 @@ public class Player {
         }
     }
     
-    public void kitCarlson(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile, Scanner input){
+    public void kitCarlson(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
         PlayingCard[] t = new PlayingCard[3];
         System.out.println(this + ": <Choose two of these");                    
         for(int j = 0; j < 3; j++){
@@ -308,10 +306,10 @@ public class Player {
         }
         int choice, x;
         do{
-            choice = Utils.nextInt(input, "") - 1;
+            choice = Utils.nextInt("") - 1;
         }while(choice < 0 || choice >= 3);
         do{
-            x = Utils.nextInt(input, "") - 1;
+            x = Utils.nextInt("") - 1;
         }while (x < 0 || x >= 3 || x == choice);
         System.out.println(this + "(Drawn: " + t[choice]);
         System.out.println(this + "(Drawn: " + t[x]);
@@ -325,10 +323,10 @@ public class Player {
             Deck.addFirst(t[0]);
     }
 
-    public boolean pedroRamirez(LinkedList<PlayingCard> DiscardPile, Scanner input){
+    public boolean pedroRamirez(LinkedList<PlayingCard> DiscardPile){
         int choice;
         do{
-            choice = Utils.nextInt(input, this + ": <Insert 1 to activate your character's ability or 0 to ignore");
+            choice = Utils.nextInt(this + ": <Insert 1 to activate your character's ability or 0 to ignore");
         }while(choice < 0 || choice > 1);
         if(choice == 1){
             if(!DiscardPile.isEmpty())
@@ -343,14 +341,14 @@ public class Player {
             draw(Deck, DiscardPile);
     }
     
-    public boolean jourdonnais(Scanner input, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    public boolean jourdonnais(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
         if(character.getName() == "Jourdonnais"){
             int choice;
             do{
-                choice = Utils.nextInt(input, this + " <Choose 1 to activate your character's ability or 0 to ignore");
+                choice = Utils.nextInt(this + " <Choose 1 to activate your character's ability or 0 to ignore");
             }while(choice < 0 || choice > 1);
             if(choice == 1)
-                if(drawHearts(Deck, DiscardPile, input)){
+                if(drawHearts(Deck, DiscardPile)){
                     System.out.println("Missed!");
                     return true;
                 }
@@ -358,24 +356,24 @@ public class Player {
         return false;
     }
     
-    public boolean sidKetchum(LinkedList<PlayingCard> DiscardPile, Scanner input){
+    public boolean sidKetchum(LinkedList<PlayingCard> DiscardPile){
         int handSize = Hand.size();
         if(handSize >= 2){
             int choice;
             readHand();
             do{
-                choice = Utils.nextInt(input, this + ": <Insert 1 to activate your character's ability or 0 to ignore");
+                choice = Utils.nextInt(this + ": <Insert 1 to activate your character's ability or 0 to ignore");
             }while(choice < 0 || choice > 1);
             if(choice == 1){
                 readHand();
                 do{
-                    choice = Utils.nextInt(input, "<Choose a card to discard") - 1;
+                    choice = Utils.nextInt("<Choose a card to discard") - 1;
                 }while(choice < 0 || choice >= handSize);
                 discard(choice, DiscardPile);
                 handSize--;
                 readHand();
                 do{
-                    choice = Utils.nextInt(input, "<Choose a card to discard") - 1;
+                    choice = Utils.nextInt("<Choose a card to discard") - 1;
                 }while(choice < 0 || choice >= handSize);
                 discard(choice, DiscardPile);
                 addLife();
@@ -385,12 +383,12 @@ public class Player {
         return false;
     }
     
-    public boolean savingBeer(Scanner input, LinkedList<PlayingCard> DiscardPile, boolean twoPlayers){
+    public boolean savingBeer(LinkedList<PlayingCard> DiscardPile, boolean twoPlayers){
         boolean goOn, done = false;
         if(character.getName() == "Sid Ketchum"){
             System.out.println(this + " is losing his last life point");
             do{
-                goOn = sidKetchum(DiscardPile, input);
+                goOn = sidKetchum(DiscardPile);
                 done |= goOn;
             }while(goOn);
             if(done)
@@ -409,7 +407,7 @@ public class Player {
                 System.out.println(this + " (Your beers:");
                 for(int i = 0; i < nBeers; i++)
                     System.out.println((i+1) + ") " + Hand.get(i));
-                choice = Utils.nextInt(input, this + " <Choose a beer or 0 to ignore") - 1;
+                choice = Utils.nextInt(this + " <Choose a beer or 0 to ignore") - 1;
             }while(choice < -1 || choice >= nBeers);
             if(choice != -1){
                 this.discard(Beers.get(choice), DiscardPile);
@@ -420,23 +418,23 @@ public class Player {
         return false;
     }
     
-    public void thirdPhase(LinkedList<PlayingCard> DiscardPile, Scanner input){
+    public void thirdPhase(LinkedList<PlayingCard> DiscardPile){
         int handSize = Hand.size(), choice;
         while(handSize > lives){
             System.out.println(this + " has to discard cards until those are the same number of his lives.");
             readHand();
             do{
-                choice = Utils.nextInt(input, this + " <Choose a card to discard") - 1;
+                choice = Utils.nextInt(this + " <Choose a card to discard") - 1;
             }while(choice < 0 || choice >= handSize);
             discard(choice, DiscardPile);
             handSize--;
         }
     }
     
-    public void discardAll(Scanner input, LinkedList<PlayingCard> DiscardPile, LinkedList<PlayingCard> Deck){
+    public void discardAll(LinkedList<PlayingCard> DiscardPile, LinkedList<PlayingCard> Deck){
         int choice;
         do{
-            choice = Utils.nextInt(input, this + ": <Insert 1 to discard your cards automatically or 0 to choose the order");
+            choice = Utils.nextInt(this + ": <Insert 1 to discard your cards automatically or 0 to choose the order");
         }while(choice != 0 && choice != 1);
         if(choice == 1)
             autoDiscardAll(DiscardPile);
@@ -461,7 +459,7 @@ public class Player {
             
             for(i = 0; i < nTot; i++){
                 do{
-                    choice = Utils.nextInt(input, "") - 1;
+                    choice = Utils.nextInt("") - 1;
                 }while(choice < 0 || choice >= nTot || ToDiscard[choice] == null);
                 if(choice < handSize)
                     ToDiscard[choice].discard(DiscardPile);
