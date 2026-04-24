@@ -2,7 +2,7 @@ package cards;
 
 import java.util.LinkedList;
 
-public class PlayingCard {
+public class PlayingCard implements IPlayingCard {
     private String name;
     private char suit;
     private int rank;
@@ -13,6 +13,7 @@ public class PlayingCard {
         setRank(rank);
     }
     
+    @Override
     public String getName() {
         return this.name;
     }
@@ -21,6 +22,7 @@ public class PlayingCard {
         this.name = name;
     }
 
+    @Override
     public char getSuit() {
         return this.suit;
     }
@@ -29,10 +31,12 @@ public class PlayingCard {
         this.suit = suit;
     }
 
+    @Override
     public int getRank() {
         return this.rank;
     }
 
+    @Override
     public String getStringRank(){
         switch (this.rank) {
             case 11:
@@ -50,7 +54,8 @@ public class PlayingCard {
         this.rank = rank;
     }
 
-    public void discard(LinkedList<PlayingCard> discardPile){
+    @Override
+    public void discard(LinkedList<IPlayingCard> discardPile){
         discardPile.addFirst(this);
     }
     

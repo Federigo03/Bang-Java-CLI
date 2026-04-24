@@ -4,18 +4,18 @@ import java.util.LinkedList;
 
 import lib.*;
 import cards.*;
-import characters.Characters;
-import player.Player;
+import characters.*;
+import player.*;
 
 public class Match {
     private int nPlayers;
-    final private Player[] Players;
+    final private IPlayer[] Players;
     private int sheriffIx;
     private int sidKetchumIx;
     private int turnPlayerIx;
-    private Player turnPlayer;
+    private IPlayer turnPlayer;
     private int Distances[];
-    private LinkedList<Player> Winners = new LinkedList<Player>();
+    private LinkedList<IPlayer> Winners = new LinkedList<IPlayer>();
 
     public Match(int nStartPlayers, boolean inputName){
         final int nStartingPlayers = nStartPlayers;
@@ -25,10 +25,10 @@ public class Match {
         }
         nPlayers = nStartingPlayers;
         final String[] Roles = drawRoles();
-        final Characters[] Characters = drawCharacters(createCharacters());
-        LinkedList<PlayingCard> Deck = shuffle(createCards());
-        LinkedList<PlayingCard> DiscardPile = new LinkedList<PlayingCard>();
-        Players = new Player[nStartingPlayers];
+        final ICharacters[] Characters = drawCharacters(createCharacters());
+        LinkedList<IPlayingCard> Deck = shuffle(createCards());
+        LinkedList<IPlayingCard> DiscardPile = new LinkedList<IPlayingCard>();
+        Players = new IPlayer[nStartingPlayers];
         if(inputName)
             for(int i = 0; i < nStartingPlayers; i++)
                 Players[i] = new Player(Roles[i], Characters[i], Deck);
@@ -229,7 +229,7 @@ public class Match {
                                     do{ 
                                         System.out.println(turnPlayer + ": <Choose:\n0 if you want to cancel\n1 if you want to discard a card from his hand");
                                         int i = 2;
-                                        for (PlayingCard activeCard : Players[target].getActiveCards())
+                                        for (IPlayingCard activeCard : Players[target].getActiveCards())
                                             System.out.println((i++) + " if you want to discard his " + activeCard.getName());
                                         if(Players[target].isWeapon())
                                             System.out.println(i + " if you want to discard his weapon");
@@ -240,7 +240,7 @@ public class Match {
                                             done = true;
                                             turnPlayer.discard(card, DiscardPile);
                                             if(!Players[target].getHand().isEmpty()){
-                                                PlayingCard p = Players[target].getHand().get((int) Math.random() * Players[target].getHand().size());
+                                                IPlayingCard p = Players[target].getHand().get((int) Math.random() * Players[target].getHand().size());
                                                 System.out.println(p + " discarded by Cat Balou effect");
                                                 Players[target].discard(p, DiscardPile, Deck);
                                             }
@@ -283,7 +283,7 @@ public class Match {
                                     do{
                                         System.out.println("Choose:\n0 if you want to cancel\n1 if you want to get a card from his hand");
                                         int i = 2;
-                                        for (PlayingCard activeCard : Players[target].getActiveCards())
+                                        for (IPlayingCard activeCard : Players[target].getActiveCards())
                                             System.out.println((i++) + " if you want to get his " + activeCard.getName());
                                         if(Players[target].isWeapon())
                                             System.out.println(i + " if you want to get his weapon");
@@ -424,7 +424,7 @@ public class Match {
                                 default:
                                     if(turnPlayer.isWeapon())
                                         turnPlayer.removeWeapon().discard(DiscardPile);
-                                    turnPlayer.setWeapon((Weapon) (turnPlayer.getHand().remove(card)));
+                                    turnPlayer.setWeapon((IWeapon) (turnPlayer.getHand().remove(card)));
                                     turnPlayer.suzyLafayette(Deck, DiscardPile);
                                     sidKetchum("", DiscardPile);
                                     break;
@@ -448,8 +448,8 @@ public class Match {
         }
     }
 
-    public LinkedList<Player> getPlayers(){
-        LinkedList<Player> P = new LinkedList<Player>();
+    public LinkedList<IPlayer> getPlayers(){
+        LinkedList<IPlayer> P = new LinkedList<IPlayer>();
         for(int i = 0; i < Players.length; i++)
             P.add(Players[i]);
         return P;
@@ -459,12 +459,12 @@ public class Match {
         return Players.length;
     }
     
-    public LinkedList<Player> getWinners(){
+    public LinkedList<IPlayer> getWinners(){
         return Winners;
     }
     
-    private Characters[] createCharacters(){ 
-        Characters[] Characters = new Characters[16];
+    private ICharacters[] createCharacters(){ 
+        ICharacters[] Characters = new ICharacters[16];
         Characters[0] = new Characters("Jesse Jones", 4, "He may draw his first card from the hand of a player.");
         Characters[1] = new Characters("Black Jack", 4, "He shows the second card he draws. On heart or Diamonds, he draws one more card.");
         Characters[2] = new Characters("Rose Doolan", 4, "She sees all players at a distance decreased by 1.");
@@ -497,8 +497,8 @@ public class Match {
         return Roles;
     }
 
-    private Characters[] drawCharacters(Characters[] availableCharacters){
-        Characters[] Characters = new Characters[nPlayers];
+    private ICharacters[] drawCharacters(ICharacters[] availableCharacters){
+        ICharacters[] Characters = new ICharacters[nPlayers];
         int n = availableCharacters.length - 1;
         for(int i = 0; i < nPlayers; i++){
             int pick = (int) (Math.random() * (availableCharacters.length - i));
@@ -508,8 +508,8 @@ public class Match {
         return Characters;
     }
 
-    private PlayingCard[] createCards(){
-        PlayingCard[] playingCards = new PlayingCard[80];
+    private IPlayingCard[] createCards(){
+        IPlayingCard[] playingCards = new IPlayingCard[80];
         playingCards[0] = new PlayingCard("Cat Balou", '♦', 11);
         playingCards[1] = new Weapon("Rev. Carabine", '♣', 1, 4, false);
         playingCards[2] = new PlayingCard("Bang!", '♣', 7);
@@ -593,8 +593,8 @@ public class Match {
         return playingCards;
     }
     
-    private static LinkedList<PlayingCard> shuffle(PlayingCard[] PlayingCards){
-        LinkedList<PlayingCard> Deck = new LinkedList<PlayingCard>();
+    private static LinkedList<IPlayingCard> shuffle(IPlayingCard[] PlayingCards){
+        LinkedList<IPlayingCard> Deck = new LinkedList<IPlayingCard>();
         int n = PlayingCards.length - 1;
         for(int i = 0; i < n; i++){
             int pick = (int) (Math.random() * (PlayingCards.length - i));
@@ -605,8 +605,8 @@ public class Match {
         return Deck;
     }
     
-    public static LinkedList<PlayingCard> discardIntoDeck(LinkedList<PlayingCard> DiscardPile){
-        PlayingCard[] Deck = new PlayingCard[DiscardPile.size()];
+    public static LinkedList<IPlayingCard> discardIntoDeck(LinkedList<IPlayingCard> DiscardPile){
+        IPlayingCard[] Deck = new IPlayingCard[DiscardPile.size()];
         for(int i = 0; i < Deck.length; i++)
             Deck[i] = DiscardPile.remove();
         return shuffle(Deck);
@@ -628,14 +628,14 @@ public class Match {
             return -1;
         }
 
-    private void readDiscard(LinkedList<PlayingCard> DiscardPile){
+    private void readDiscard(LinkedList<IPlayingCard> DiscardPile){
         if(DiscardPile.isEmpty())
             System.out.println("Discard pile is empty");            
         else
             System.out.println("First card in the discard pile: " + DiscardPile.getFirst());
     }
 
-    private void sidKetchum(String message, LinkedList<PlayingCard> DiscardPile){
+    private void sidKetchum(String message, LinkedList<IPlayingCard> DiscardPile){
         if(sidKetchumIx >= 0 && Players[sidKetchumIx].getHand().size() >= 2){
             if(!message.isEmpty())
                 System.out.println(message);
@@ -684,7 +684,7 @@ public class Match {
             }
         }
         else{
-            Player p = Players[choice - 1];
+            IPlayer p = Players[choice - 1];
             if(!p.getActiveCards().isEmpty() || p.isWeapon())
                 System.out.println(p + " active cards:\n" + p.stringActiveCards());
             else
@@ -748,7 +748,7 @@ public class Match {
             System.out.println((i+1) + ") " + Players[i]);
     }
 
-    private boolean bang(int defender, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    private boolean bang(int defender, LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
         sidKetchum("", DiscardPile);
         int shot;
         if(turnPlayer.getCharacter().getName() == "Slab The Killer"){
@@ -793,7 +793,7 @@ public class Match {
         return false;
     }
 
-    private boolean missed(Player defender, LinkedList<PlayingCard> DiscardPile){
+    private boolean missed(IPlayer defender, LinkedList<IPlayingCard> DiscardPile){
         defender.readHand();
         boolean miss = false;
         int choice;
@@ -818,8 +818,8 @@ public class Match {
         return true;
     }
     
-    private int duel(int target, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
-        Player dueller = Players[target];
+    private int duel(int target, LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
+        IPlayer dueller = Players[target];
         int choice;
         while(true){
             boolean bang = false;
@@ -855,7 +855,7 @@ public class Match {
         }
     }
 
-    private int[] gatling(LinkedList<Integer> Hit, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    private int[] gatling(LinkedList<Integer> Hit, LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
         for(int i = turnPlayerIx + 1; i != turnPlayerIx && !(i == nPlayers && turnPlayerIx == 0); i++){
             if(i == nPlayers)
                 i = 0;
@@ -869,13 +869,13 @@ public class Match {
         return multipleHits(Hit, DiscardPile);
     }
     
-    private int[] indians(LinkedList<Integer> Hit, LinkedList<PlayingCard> DiscardPile){
+    private int[] indians(LinkedList<Integer> Hit, LinkedList<IPlayingCard> DiscardPile){
         int choice;
         for(int i = turnPlayerIx + 1; i != turnPlayerIx && !(i == nPlayers && turnPlayerIx == 0); i++){
             if(i == nPlayers)
                 i = 0;
             boolean bang = false;
-            Player target = Players[i];
+            IPlayer target = Players[i];
             do{
                 target.readHand();
                 System.out.print(target + " <Choose a Bang!"); 
@@ -899,7 +899,7 @@ public class Match {
         return multipleHits(Hit, DiscardPile);
     }
 
-    private int[] multipleHits(LinkedList<Integer> Hit, LinkedList<PlayingCard> DiscardPile){
+    private int[] multipleHits(LinkedList<Integer> Hit, LinkedList<IPlayingCard> DiscardPile){
         LinkedList<Integer> Dead = new LinkedList<Integer>();
         for (int i : Hit) {
             if(Players[i].getLives() == 1){
@@ -917,7 +917,7 @@ public class Match {
         return D;
     }
 
-    private boolean barrelEffect(Player defender, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    private boolean barrelEffect(IPlayer defender, LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
         if(defender.isActiveCard("Barrel")){
             int choice;
             do{
@@ -934,7 +934,7 @@ public class Match {
         return false;
     }
     
-    private boolean subLife(int wounded, int attacker, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    private boolean subLife(int wounded, int attacker, LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
         //not damage from dynamite
         if(Players[wounded].getLives() == 1){
             if(!Players[wounded].savingBeer(DiscardPile, nPlayers == 2)){
@@ -977,12 +977,12 @@ public class Match {
         return false;
     }
 
-    private void death(int killer, int killed, boolean multiple, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    private void death(int killer, int killed, boolean multiple, LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
         deathDiscard(killed, Deck, DiscardPile);;
         if(killer >= 0 && !multiple)
             penaltiesAndRewards(Players[killer], Players[killed], Deck, DiscardPile);;
         for(int i = killed + 1; i != nPlayers; i++){
-            Player tmp = Players[i];
+            IPlayer tmp = Players[i];
             Players[i] = Players[i-1];
             Players[i-1] = tmp;
         }
@@ -1016,8 +1016,8 @@ public class Match {
         }
     }
 
-    private void multipleDeaths(int[] Dead, LinkedList<Integer> Hit, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
-        Player[] Killed = new Player[Dead.length];
+    private void multipleDeaths(int[] Dead, LinkedList<Integer> Hit, LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
+        IPlayer[] Killed = new IPlayer[Dead.length];
         for (int i = 0; i < Dead.length; i++) 
             Killed[i] = Players[Dead[i]];
         int i = turnPlayerIx;
@@ -1050,12 +1050,12 @@ public class Match {
             if(i == nPlayers)
                 i = 0;
         }while(i != turnPlayerIx);
-        for (Player k : Killed) 
+        for (IPlayer k : Killed) 
             penaltiesAndRewards(turnPlayer, k, Deck, DiscardPile);;
         Distances = distances();
     }
 
-    private void penaltiesAndRewards(Player killer, Player killed, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    private void penaltiesAndRewards(IPlayer killer, IPlayer killed, LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
         if(killer.getRole() == "Sheriff" && killed.getRole() == "Deputy")
             killer.discardAll(DiscardPile, Deck);
         else if(killed.getRole() == "Outlaw")
@@ -1063,7 +1063,7 @@ public class Match {
                 killer.draw(Deck, DiscardPile);
     }
     
-    private void deathDiscard(int killed, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    private void deathDiscard(int killed, LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
         int vulture = findCharacter("Vulture Sam");
         if(vulture >= 0 && vulture != killed){
             while (!Players[killed].getHand().isEmpty())
@@ -1077,16 +1077,16 @@ public class Match {
             Players[killed].discardAll(DiscardPile, Deck);
     }
     
-    private void panic(int robber, int robbed, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
-        PlayingCard rand = Players[robbed].getHand().remove((int) Math.random() * Players[robbed].getHand().size());
+    private void panic(int robber, int robbed, LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
+        IPlayingCard rand = Players[robbed].getHand().remove((int) Math.random() * Players[robbed].getHand().size());
         System.out.println(Players[robber] + ": (Drawn " + rand);
         System.out.println(Players[robbed] + ": (" + Players[robber] + " robbed your " + rand);
         Players[robber].getHand().add(rand);
         Players[robbed].suzyLafayette(Deck, DiscardPile);
     }
 
-    private void generalStore(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
-        LinkedList<PlayingCard> generalStore = new LinkedList<PlayingCard>();
+    private void generalStore(LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
+        LinkedList<IPlayingCard> generalStore = new LinkedList<IPlayingCard>();
         int storeSize = nPlayers;
         for(int i = 0; i < nPlayers; i++){
             if(Deck.isEmpty())
@@ -1160,10 +1160,10 @@ public class Match {
             }
     }
 
-    private boolean dynamite(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    private boolean dynamite(LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
         sidKetchum(turnPlayer + " drawing for Dynamite", DiscardPile);
         if(turnPlayer.getCharacter().getName() == "Lucky Duke"){
-            PlayingCard[] tmp = new PlayingCard[2];
+            IPlayingCard[] tmp = new IPlayingCard[2];
             int choice1, choice2;
             for(int i = 0; i < 2; i++){
                 if(Deck.isEmpty())

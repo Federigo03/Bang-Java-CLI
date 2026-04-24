@@ -3,23 +3,24 @@ package player;
 import java.util.LinkedList;
 
 import lib.*;
-import cards.*;
-import characters.Characters;
+import cards.IPlayingCard;
+import cards.IWeapon;
+import characters.ICharacters;
 import match.Match;
 
-public class Player {
+public class Player implements IPlayer {
     private String name;
     private int startingLives;
     private int lives;
     private String role;
-    private Characters character;
+    private ICharacters character;
     private int range;
     private boolean unlimitedBang;
-    private LinkedList<PlayingCard> Hand = new LinkedList<PlayingCard>();  
-    private LinkedList<PlayingCard> ActiveCards = new LinkedList<PlayingCard>();
-    private Weapon weapon;
+    private LinkedList<IPlayingCard> Hand = new LinkedList<IPlayingCard>();  
+    private LinkedList<IPlayingCard> ActiveCards = new LinkedList<IPlayingCard>();
+    private IWeapon weapon;
 
-    public Player(String role, Characters character, String name, LinkedList<PlayingCard> Deck) {
+    public Player(String role, ICharacters character, String name, LinkedList<IPlayingCard> Deck) {
         setName(name);
         setRole(role);
         setCharacter(character);
@@ -29,7 +30,7 @@ public class Player {
         startingDraw(Deck);
     }
 
-    public Player(String role, Characters character, LinkedList<PlayingCard> Deck) {
+    public Player(String role, ICharacters character, LinkedList<IPlayingCard> Deck) {
         setName(Utils.nextLine("<Insert your name"));
         setRole(role);
         setCharacter(character);
@@ -40,6 +41,7 @@ public class Player {
         readRole();
     }
 
+    @Override
     public String getName(){
         return this.name;
     }
@@ -48,6 +50,7 @@ public class Player {
         this.name = name;
     }
     
+    @Override
     public int getLives() {
         return this.lives;
     }
@@ -56,6 +59,7 @@ public class Player {
         this.lives = lives;
     }
 
+    @Override
     public String getRole() {
         return this.role;
     }
@@ -64,11 +68,12 @@ public class Player {
         this.role = role;
     }
 
-    public Characters getCharacter() {
+    @Override
+    public ICharacters getCharacter() {
         return this.character;
     }
 
-    public void setCharacter(Characters character) {
+    public void setCharacter(ICharacters character) {
         this.character = character;
         if(role == "Sheriff")
             setStartingLives(character.getStartingLives() + 1);
@@ -76,6 +81,7 @@ public class Player {
             setStartingLives(character.getStartingLives());
     }
 
+    @Override
     public int getRange() {
         return this.range;
     }
@@ -84,6 +90,7 @@ public class Player {
         this.range = range;
     }
     
+    @Override
     public boolean isUnlimitedBang() {
         return this.unlimitedBang;
     }
@@ -92,6 +99,7 @@ public class Player {
         this.unlimitedBang = unlimitedBang || (character.getName() == "Willy The Kid");
     }
 
+    @Override
     public int getStartingLives() {
         return this.startingLives;
     }
@@ -100,19 +108,23 @@ public class Player {
         this.startingLives = startingLives;
     }
     
-    public LinkedList<PlayingCard> getHand() {
+    @Override
+    public LinkedList<IPlayingCard> getHand() {
         return this.Hand;
     }
  
-    public Weapon getWeapon() {
+    @Override
+    public IWeapon getWeapon() {
         return this.weapon;
     }
 
+    @Override
     public boolean isWeapon(){
         return this.weapon != null;
     }
 
-    public void setWeapon(Weapon weapon) {
+    @Override
+    public void setWeapon(IWeapon weapon) {
         this.weapon = weapon;
         if(weapon == null){
             setRange(1);
@@ -124,45 +136,52 @@ public class Player {
         }
     }
 
-    public Weapon removeWeapon(){
-        Weapon w = getWeapon();
+    @Override
+    public IWeapon removeWeapon(){
+        IWeapon w = getWeapon();
         setWeapon(null);
         return w;
     }
 
-    public LinkedList<PlayingCard> getActiveCards(){
+    @Override
+    public LinkedList<IPlayingCard> getActiveCards(){
         return this.ActiveCards;
     }
 
-    public PlayingCard getActiveCard(String name){
-        for (PlayingCard card : ActiveCards)
+    @Override
+    public IPlayingCard getActiveCard(String name){
+        for (IPlayingCard card : ActiveCards)
             if(card.getName() == name)
                 return card;
         return null;
     }
 
+    @Override
     public boolean isActiveCard(String name){
-        for (PlayingCard card : ActiveCards)
+        for (IPlayingCard card : ActiveCards)
             if(card.getName() == name)
                 return true;
         return false;
     }
 
-    public PlayingCard removeActiveCard(String name){
-        PlayingCard card = getActiveCard(name);
+    @Override
+    public IPlayingCard removeActiveCard(String name){
+        IPlayingCard card = getActiveCard(name);
         ActiveCards.remove(card);
         return card;
     }
 
+    @Override
     public String stringActiveCards(){
         String s = new String();
         if(isWeapon())
             s += "\t" + weapon + "\n";
-        for (PlayingCard card : ActiveCards)
+        for (IPlayingCard card : ActiveCards)
             s += "\t" + card + "\n";
         return s.stripTrailing();
     }
     
+    @Override
     public void addLife(){
         if(lives < startingLives){
             lives++;
@@ -170,19 +189,21 @@ public class Player {
         }
     }
     
+    @Override
     public void subLife(){  
         lives--;
         System.out.println(this + " lost a life");
     }
 
-    private void startingDraw(LinkedList<PlayingCard> Deck){
+    private void startingDraw(LinkedList<IPlayingCard> Deck){
         for(int i = 0; i < lives; i++){
             System.out.println(this + ": (Drawn: " + Deck.getFirst());
             Hand.add(Deck.removeFirst());
         }
     }
     
-    public void firstPhase(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile, int drawn){
+    @Override
+    public void firstPhase(LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile, int drawn){
         for(; drawn < 2; drawn++){
             if(character.getName() == "Black Jack" && drawn == 1){
                 if(Deck.isEmpty())
@@ -195,46 +216,54 @@ public class Player {
         }
     }
     
-    public void draw(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    @Override
+    public void draw(LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
         if(Deck.isEmpty())
             Deck.addAll(Match.discardIntoDeck(DiscardPile));
         System.out.println(this + ": (Drawn: " + Deck.getFirst());
         Hand.add(Deck.removeFirst());
     }
 
-    public void     discard(int card, LinkedList<PlayingCard> DiscardPile){
+    @Override
+    public void     discard(int card, LinkedList<IPlayingCard> DiscardPile){
         Hand.remove(card).discard(DiscardPile);
     }
 
-    public void discard(int card, LinkedList<PlayingCard> DiscardPile, LinkedList<PlayingCard> Deck){
+    @Override
+    public void discard(int card, LinkedList<IPlayingCard> DiscardPile, LinkedList<IPlayingCard> Deck){
         Hand.remove(card).discard(DiscardPile);
         suzyLafayette(Deck, DiscardPile);
     }
 
-    public void discard(PlayingCard card, LinkedList<PlayingCard> DiscardPile){
+    @Override
+    public void discard(IPlayingCard card, LinkedList<IPlayingCard> DiscardPile){
         if(getHand().remove(card))
             card.discard(DiscardPile);
     }
 
-    public void discard(PlayingCard card, LinkedList<PlayingCard> DiscardPile, LinkedList<PlayingCard> Deck){
+    @Override
+    public void discard(IPlayingCard card, LinkedList<IPlayingCard> DiscardPile, LinkedList<IPlayingCard> Deck){
         if(getHand().remove(card))
             card.discard(DiscardPile);
         suzyLafayette(Deck, DiscardPile);
     }
 
-    public PlayingCard removeFromHand(int card, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
-        PlayingCard c = Hand.remove(card);
+    @Override
+    public IPlayingCard removeFromHand(int card, LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
+        IPlayingCard c = Hand.remove(card);
         suzyLafayette(Deck, DiscardPile);
         return c;
     }
 
-    public boolean removeFromHand(PlayingCard card, LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    @Override
+    public boolean removeFromHand(IPlayingCard card, LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
         boolean b = Hand.remove(card);
         suzyLafayette(Deck, DiscardPile);
         return b;
     }
 
-    public boolean explosion(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile, boolean twoPlayers){
+    @Override
+    public boolean explosion(LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile, boolean twoPlayers){
         removeActiveCard("Dynamite").discard(DiscardPile);
         System.out.println("Dynamite exploded: " + this + " is going to lose 3 lives");
         for(int i = 0; i < 3; i++){
@@ -256,9 +285,10 @@ public class Player {
         return false;
     }
     
-    public boolean drawHearts(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    @Override
+    public boolean drawHearts(LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
         if(character.getName() == "Lucky Duke"){
-            PlayingCard[] tmp = new PlayingCard[2];
+            IPlayingCard[] tmp = new IPlayingCard[2];
             int choice1, choice2;
             for(int i = 0; i < 2; i++)
                 if(Deck.isEmpty()){
@@ -295,8 +325,9 @@ public class Player {
         }
     }
     
-    public void kitCarlson(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
-        PlayingCard[] t = new PlayingCard[3];
+    @Override
+    public void kitCarlson(LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
+        IPlayingCard[] t = new IPlayingCard[3];
         System.out.println(this + ": <Choose two of these");                    
         for(int j = 0; j < 3; j++){
             if(Deck.isEmpty())
@@ -323,7 +354,8 @@ public class Player {
             Deck.addFirst(t[0]);
     }
 
-    public boolean pedroRamirez(LinkedList<PlayingCard> DiscardPile){
+    @Override
+    public boolean pedroRamirez(LinkedList<IPlayingCard> DiscardPile){
         int choice;
         do{
             choice = Utils.nextInt(this + ": <Insert 1 to activate your character's ability or 0 to ignore");
@@ -336,12 +368,14 @@ public class Player {
         return false;
     }
     
-    public void suzyLafayette(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    @Override
+    public void suzyLafayette(LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
         if(character.getName() == "Suzy Lafayette" && Hand.isEmpty())
             draw(Deck, DiscardPile);
     }
     
-    public boolean jourdonnais(LinkedList<PlayingCard> Deck, LinkedList<PlayingCard> DiscardPile){
+    @Override
+    public boolean jourdonnais(LinkedList<IPlayingCard> Deck, LinkedList<IPlayingCard> DiscardPile){
         if(character.getName() == "Jourdonnais"){
             int choice;
             do{
@@ -356,7 +390,8 @@ public class Player {
         return false;
     }
     
-    public boolean sidKetchum(LinkedList<PlayingCard> DiscardPile){
+    @Override
+    public boolean sidKetchum(LinkedList<IPlayingCard> DiscardPile){
         int handSize = Hand.size();
         if(handSize >= 2){
             int choice;
@@ -383,7 +418,8 @@ public class Player {
         return false;
     }
     
-    public boolean savingBeer(LinkedList<PlayingCard> DiscardPile, boolean twoPlayers){
+    @Override
+    public boolean savingBeer(LinkedList<IPlayingCard> DiscardPile, boolean twoPlayers){
         boolean goOn, done = false;
         if(character.getName() == "Sid Ketchum"){
             System.out.println(this + " is losing his last life point");
@@ -394,8 +430,8 @@ public class Player {
             if(done)
                 return true;
         }
-        LinkedList<PlayingCard> Beers = new LinkedList<PlayingCard>();
-        for(PlayingCard card : Hand)
+        LinkedList<IPlayingCard> Beers = new LinkedList<IPlayingCard>();
+        for(IPlayingCard card : Hand)
             if(card.getName() == "Beer")
                 Beers.add(card);
         if(!Beers.isEmpty()){
@@ -418,7 +454,8 @@ public class Player {
         return false;
     }
     
-    public void thirdPhase(LinkedList<PlayingCard> DiscardPile){
+    @Override
+    public void thirdPhase(LinkedList<IPlayingCard> DiscardPile){
         int handSize = Hand.size(), choice;
         while(handSize > lives){
             System.out.println(this + " has to discard cards until those are the same number of his lives.");
@@ -431,7 +468,8 @@ public class Player {
         }
     }
     
-    public void discardAll(LinkedList<PlayingCard> DiscardPile, LinkedList<PlayingCard> Deck){
+    @Override
+    public void discardAll(LinkedList<IPlayingCard> DiscardPile, LinkedList<IPlayingCard> Deck){
         int choice;
         do{
             choice = Utils.nextInt(this + ": <Insert 1 to discard your cards automatically or 0 to choose the order");
@@ -443,16 +481,16 @@ public class Player {
             int nTot = handSize + ActiveCards.size();
             if(isWeapon())
                 nTot++;
-            PlayingCard ToDiscard[] = new PlayingCard[nTot];
+            IPlayingCard ToDiscard[] = new IPlayingCard[nTot];
             int i = 0;
-            for (PlayingCard card : Hand)
+            for (IPlayingCard card : Hand)
                 ToDiscard[i++] = card;
-            for (PlayingCard card : ActiveCards)
+            for (IPlayingCard card : ActiveCards)
                 ToDiscard[i++] = card;
             if(isWeapon())
                 ToDiscard[i] = weapon;
             i = 1;
-            for (PlayingCard card : ToDiscard)
+            for (IPlayingCard card : ToDiscard)
                 System.out.println((i++) + ") " + card);
             if(nTot > 0)
                 System.out.println(this + ": <Choose how to discard your cards ");
@@ -475,7 +513,8 @@ public class Player {
             suzyLafayette(Deck, DiscardPile);
     }
 
-    public void autoDiscardAll(LinkedList<PlayingCard> DiscardPile){
+    @Override
+    public void autoDiscardAll(LinkedList<IPlayingCard> DiscardPile){
         while(!Hand.isEmpty())
             Hand.pop().discard(DiscardPile);
         while(!ActiveCards.isEmpty())
@@ -483,17 +522,19 @@ public class Player {
         getWeapon().discard(DiscardPile);
     }
     
+    @Override
     public void readHand(){
         if(Hand.isEmpty())
             System.out.println(this + ": You don't have any card in your hand");
         else{
             System.out.println(this + ": (Your hand:");
             int i = 1;
-            for(PlayingCard card : Hand)
+            for(IPlayingCard card : Hand)
                 System.out.println((i++) + ": " + card);
         }
     }
 
+    @Override
     public void readRole(){
         System.out.println(this + ": (You are a " + role);
     }

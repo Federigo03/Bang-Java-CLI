@@ -1,6 +1,6 @@
 package cards;
 
-public class Weapon extends PlayingCard {
+public class Weapon extends PlayingCard implements IWeapon {
     private int range;
     private boolean unlimitedBang;
 
@@ -10,7 +10,7 @@ public class Weapon extends PlayingCard {
         setUnlimitedBang(unlimitedBang);
     }
 
-    public Weapon(PlayingCard card){
+    public Weapon(IPlayingCard card){
         super(card.getName(), card.getSuit(), card.getRank());
         if(this.getName() == "Volcanic"){
             setRange(1);
@@ -34,6 +34,7 @@ public class Weapon extends PlayingCard {
         }
     }
     
+    @Override
     public int getRange() {
         return this.range;
     }
@@ -42,6 +43,7 @@ public class Weapon extends PlayingCard {
         this.range = range;
     }
 
+    @Override
     public boolean isUnlimitedBang() {
         return this.unlimitedBang;
     }

@@ -1,6 +1,6 @@
 package characters;
 
-public class Characters {
+public class Characters implements ICharacters {
     private String name;
     private int startingLives;
     private String ability;
@@ -11,6 +11,7 @@ public class Characters {
         setAbility(ablity);
     }
 
+    @Override
     public String getName() {
         return this.name;
     }
@@ -19,6 +20,7 @@ public class Characters {
         this.name = name;
     }
 
+    @Override
     public int getStartingLives() {
         return this.startingLives;
     }
@@ -27,6 +29,7 @@ public class Characters {
         this.startingLives = startingLives;
     }
 
+    @Override
     public String getAbility() {
         return this.ability;
     }
